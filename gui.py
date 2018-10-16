@@ -1,5 +1,7 @@
 import tkinter as tk
 
+global task_selections
+
 def openpose_capture(): 
     # From Python
     # It requires OpenCV installed for Python
@@ -17,7 +19,6 @@ def openpose_capture():
 
     # Parameters for OpenPose. Take a look at C++ OpenPose example for meaning of components. Ensure all below are filled
     try:
-        # from openpose import *
         import openpose as op
     except:
         raise Exception('Error: OpenPose library could not be found.')
@@ -39,10 +40,7 @@ def openpose_capture():
     params["default_model_folder"] = dir_path + "models/"
     # Construct OpenPose object allocates GPU memory
     openpose = op.OpenPose(params)
-    # return openpose
 
-# def openpose_capture(openpose): 
-    print('opening webcam')
     cap = cv2.VideoCapture(0)
 
     if not cap.isOpened(): 
@@ -75,7 +73,6 @@ def openpose_capture():
     cap.release()
     video_writer_original.release()
     cv2.destroyAllWindows()
-    # return frame_store, point_store, openpose
 
     counter = 0;
     for f in frame_store: 
@@ -96,21 +93,81 @@ def openpose_capture():
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(point_store)
 
+def save_selections(window, checkboxes, inputs): 
+    ## TODO: save the results of all the check marks and inputs into a class level variable
+    window.destroy()
+
+def select_tasks(): 
+    win = tk.Toplevel()
+    win.geometry('300x300')
+    win.wm_title("Select Tasks")
+    win.grid_columnconfigure(1, minsize=75)
+
+    var1 = tk.IntVar()
+    c1 = tk.Checkbutton(win, text="task 1", variable=var1)
+    c1.grid(row = 0, sticky = tk.W)
+    var2 = tk.IntVar()
+    c2 = tk.Checkbutton(win, text="task 2", variable=var2)
+    c2.grid(row = 1, sticky = tk.W)
+    var3 = tk.IntVar() 
+    c3 = tk.Checkbutton(win, text="task 3", variable=var3)
+    c3.grid(row = 2, sticky = tk.W)
+
+    e1 = tk.Entry(win, width = 10)
+    e1.grid(row = 0, column = 2)
+    e1.insert(0, "10")
+    e2 = tk.Entry(win, width = 10)
+    e2.grid(row = 1, column = 2)
+    e2.insert(0, "10")
+    e3 = tk.Entry(win, width = 10)
+    e3.grid(row = 2, column = 2)
+    e3.insert(0, "10")
+
+    checkboxes = [c1, c2, c3]
+    inputs = [e1, e2, e3]
+
+    close_button = tk.Button(win, 
+                        text = 'Cancel',
+                        fg = 'red',
+                        command = win.destroy)
+    close_button.grid(row = 10, column = 0)
+
+    finish_button = tk.Button(win,
+                        text = 'Done',
+                        fg = 'blue', 
+                        command = lambda: save_selections(win, checkboxes, inputs))
+    finish_button.grid(row = 10, column = 2)
+
+
+
 root = tk.Tk()
 root.geometry('500x500') 
 frame = tk.Frame(root)
 frame.pack()
 
-# openpose = initialize_openpose()
+select_button = tk.Button(frame, 
+                    text = "Select Tasks",
+                    fg = 'blue',
+                    command = select_tasks)
+select_button.pack(padx = 5, pady = 10, side = tk.TOP)
 
-button = tk.Button(frame, 
+quit_button = tk.Button(frame, 
                    text="QUIT", 
                    fg="red",
                    command=quit)
-button.pack(padx = 5, pady = 10, side = tk.LEFT)
-slogan = tk.Button(frame,
-                   text="START",
-                   command=openpose_capture)
-slogan.pack(padx = 5, pady = 10, side = tk.LEFT)
+quit_button.pack(padx = 5, pady = 10, side = tk.LEFT)
+
+start_button = tk.Button(frame,
+                   text="START", 
+                   command = quit)
+                   #command=openpose_capture)
+start_button.pack(padx = 5, pady = 10, side = tk.LEFT)
 
 root.mainloop()
+
+
+
+
+
+
+
