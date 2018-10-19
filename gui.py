@@ -1,10 +1,10 @@
 import tkinter as tk
 
-task_selections = {}
 global task_selections
+task_selections = {}
 
-current_patient = None
 global current_patient
+current_patient = None
 
 def openpose_capture(): 
     # From Python
@@ -101,7 +101,7 @@ def save_selections(window, checkvars, checkboxes, inputs):
     for i in range(0, len(checkboxes)):  
         if checkvars[i].get(): 
             task_selections[checkboxes[i].cget('text')] = inputs[i].get()
-    print(task_selections)
+    # print(task_selections)
     window.destroy()
 
 def select_tasks(): 
@@ -146,11 +146,70 @@ def select_tasks():
                         command = lambda: save_selections(win, checkvars, checkboxes, inputs))
     finish_button.grid(row = 10, column = 2)
 
+def select_old_patient(window, menu): 
+    current_patient = menu.get()
+    window.destroy()
+    # print(current_patient)
+
 def oldpatient(): 
-    pass
+    oldpatients = []
+    f = open('patients.txt', 'r')
+    for patient in f.readlines():
+        oldpatients.append(patient)
+    f.close()
+    
+    win = tk.Toplevel()
+    win.geometry('200x100')
+
+    l = tk.Label(win, text = "Select Patient: ")
+    l.grid(row = 0, column = 0)
+
+    var = tk.StringVar(win)
+    var.set(oldpatients[0]) #default
+    menu = tk.OptionMenu(win, var, *oldpatients)
+    menu.grid(row = 0, column = 1)
+
+    b = tk.Button(win, 
+                text = "Submit", 
+                fg = 'blue', 
+                command = lambda: select_old_patient(win, var))
+    b.grid(row = 1, column = 1)
+
+    b2 = tk.Button(win, 
+                text = "Cancel", 
+                fg = "red", 
+                command = win.destroy)
+    b2.grid(row = 1, column = 0)
+
+def submit_new_patient(window, e): 
+    current_patient = e.get()
+    f = open('patients.txt', 'w') 
+    f.write(current_patient)
+    f.close()
+    window.destroy()
 
 def newpatient():
-    pass
+    win = tk.Toplevel()
+    win.geometry('250x100')
+
+    l = tk.Label(win, text="New Patient Name: ")
+    l.grid(row = 0, column = 0)
+    e = tk.Entry(win, width = 10)
+    e.grid(row = 0, column = 1)
+
+    # win.grid_rowconfigure(1, minsize=75)
+
+    b = tk.Button(win,
+                text = "Submit",
+                fg = 'blue',
+                command = lambda: submit_new_patient(win, e))
+    b.grid(row = 2, column = 1)
+
+    b2 = tk.Button(win, 
+                text = "Cancel", 
+                fg = 'red',
+                command = win.destroy)
+    b2.grid(row = 2, column = 0)
 
 root = tk.Tk()
 root.geometry('500x500') 
@@ -176,7 +235,7 @@ newpatient_button.grid(row = 3, column = 1, columnspan = 2, sticky = tk.NSEW)
 quit_button = tk.Button(frame, 
                    text="QUIT", 
                    fg="red",
-                   command=quit)
+                   command = quit)
 quit_button.grid(row = 4, column = 1, sticky = tk.NSEW)
 
 start_button = tk.Button(frame,
