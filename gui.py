@@ -1,6 +1,10 @@
 import tkinter as tk
 
+task_selections = {}
 global task_selections
+
+current_patient = None
+global current_patient
 
 def openpose_capture(): 
     # From Python
@@ -93,8 +97,11 @@ def openpose_capture():
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(point_store)
 
-def save_selections(window, checkboxes, inputs): 
-    ## TODO: save the results of all the check marks and inputs into a class level variable
+def save_selections(window, checkvars, checkboxes, inputs): 
+    for i in range(0, len(checkboxes)):  
+        if checkvars[i].get(): 
+            task_selections[checkboxes[i].cget('text')] = inputs[i].get()
+    print(task_selections)
     window.destroy()
 
 def select_tasks(): 
@@ -123,6 +130,7 @@ def select_tasks():
     e3.grid(row = 2, column = 2)
     e3.insert(0, "10")
 
+    checkvars = [var1, var2, var3]
     checkboxes = [c1, c2, c3]
     inputs = [e1, e2, e3]
 
@@ -135,10 +143,14 @@ def select_tasks():
     finish_button = tk.Button(win,
                         text = 'Done',
                         fg = 'blue', 
-                        command = lambda: save_selections(win, checkboxes, inputs))
+                        command = lambda: save_selections(win, checkvars, checkboxes, inputs))
     finish_button.grid(row = 10, column = 2)
 
+def oldpatient(): 
+    pass
 
+def newpatient():
+    pass
 
 root = tk.Tk()
 root.geometry('500x500') 
@@ -147,21 +159,37 @@ frame.pack()
 
 select_button = tk.Button(frame, 
                     text = "Select Tasks",
-                    fg = 'blue',
+                    # fg = 'blue',
                     command = select_tasks)
-select_button.pack(padx = 5, pady = 10, side = tk.TOP)
+select_button.grid(row = 1, column = 1, columnspan = 2, sticky = tk.NSEW)
+
+oldpatient_button = tk.Button(frame, 
+                        text="Select Existing Patient", 
+                        command = oldpatient)
+oldpatient_button.grid(row = 2, column = 1, columnspan = 2, sticky = tk.NSEW)
+
+newpatient_button = tk.Button(frame,
+                        text = "Input New Patient", 
+                        command = newpatient)
+newpatient_button.grid(row = 3, column = 1, columnspan = 2, sticky = tk.NSEW)
 
 quit_button = tk.Button(frame, 
                    text="QUIT", 
                    fg="red",
                    command=quit)
-quit_button.pack(padx = 5, pady = 10, side = tk.LEFT)
+quit_button.grid(row = 4, column = 1, sticky = tk.NSEW)
 
 start_button = tk.Button(frame,
                    text="START", 
+                   fg = 'blue',
                    command = quit)
                    #command=openpose_capture)
-start_button.pack(padx = 5, pady = 10, side = tk.LEFT)
+start_button.grid(row = 4, column = 2, sticky = tk.NSEW)
+
+root.grid_rowconfigure(0, weight=1)
+root.grid_rowconfigure(5, weight=1)
+root.grid_columnconfigure(0, weight=1)
+root.grid_columnconfigure(3, weight=1)
 
 root.mainloop()
 
