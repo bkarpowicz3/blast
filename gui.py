@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import time
 from glob import glob
 import datetime
@@ -11,8 +12,6 @@ current_patient = None
 
 global data_dir 
 data_dir= 'Patient_Metrics'
-
-## TODO: os.mkdir(path)
 
 def openpose_capture(): 
     # From Python
@@ -59,9 +58,6 @@ def openpose_capture():
             t = t.lower().replace(' ', '')
             new_dict[t] = val
         globals().update(task_selections = new_dict)
-        # print(task_selections)
-
-    # return 
 
     if current_patient == None: 
         win = tk.Toplevel()
@@ -145,14 +141,27 @@ def openpose_capture():
 
     videos = glob(savepath + '/*.avi')
 
+    win = tk.Toplevel()
+    win.geometry('400x100')
+    win.wm_title('Pose Estimation Progress')
+
+    progress_var = tk.DoubleVar()
+    progress = 0
+    p = ttk.Progressbar(win, length = 300, maximum = 1, mode = 'determinate', orient = tk.HORIZONTAL, variable = progress_var)
+    p.grid(row = 0, column = 0)
+    win.pack_slaves()
+    p.start()
+
+    counter = 0
     for v in videos: 
         filename = v.split('.')
-        video_writer_openpose = cv2.VideoWriter(savepath + '/' + filename[0] + 'openpose' + '.avi', fourcc, 20.0, (int(w), int(h)))
-
-        counter = 0;
+        video_writer_openpose = cv2.VideoWriter(filename[0] + '_openpose.avi', fourcc, 20.0, (int(w), int(h)))
+        
         for f in frame_store: 
             counter += 1
-            progress = float(counter)/len(frame_store)
+            progress += 1.0/(len(frame_store) * len(videos))
+            progress_var.set(progress)
+            p.update()
             if np.floor(progress % 10) == 0:
                 print(str(progress * 100) + '% Complete' )
             # Our operations on the frame come here
@@ -164,7 +173,7 @@ def openpose_capture():
         video_writer_openpose.release()
 
         # Save points 
-        with open(savepath + filename[0] + '.csv', 'wb') as csvfile:
+        with open(filename[0] + '.csv', 'wb') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow(point_store)
 
@@ -172,7 +181,6 @@ def save_selections(window, checkvars, checkboxes, inputs):
     for i in range(0, len(checkboxes)):  
         if checkvars[i].get(): 
             task_selections[checkboxes[i].cget('text')] = inputs[i].get()
-    # print(task_selections)
     window.destroy()
 
 def select_tasks(): 
