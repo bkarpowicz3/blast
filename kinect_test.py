@@ -1,39 +1,27 @@
-    
-#import the necessary modules
-
-import cv2
-import numpy as np
 import sys 
 
 sys.path.append('/Users/briannakarpowicz/Documents/freenect/build');
 
 import freenect
-
-#function to get RGB image from kinect
-def get_video():
-    array,_ = freenect.sync_get_video()
-    array = cv2.cvtColor(array,cv2.COLOR_RGB2BGR)
-    return array
+import cv2
+import numpy as np
  
-#function to get depth image from kinect
-def get_depth():
-    array,_ = freenect.sync_get_depth()
-    array = array.astype(np.uint8)
-    return array
+"""
+Grabs a depth map from the Kinect sensor and creates an image from it.
+"""
+def getDepthMap():  
+    depth, timestamp = freenect.sync_get_depth()
  
-if __name__ == "__main__":
-    while 1:
-        #get a frame from RGB camera
-        frame = get_video()
-        #get a frame from depth sensor
-        depth = get_depth()
-        #display RGB image
-        cv2.imshow('RGB image',frame)
-        #display depth image
-        cv2.imshow('Depth image',depth)
+    np.clip(depth, 0, 2**10 - 1, depth)
+    depth >>= 2
+    depth = depth.astype(np.uint8)
  
-        # quit program when 'esc' key is pressed
-        k = cv2.waitKey(5) & 0xFF
-        if k == 27:
-            break
-    cv2.destroyAllWindows()
+    return depth
+ 
+while True:
+    depth = getDepthMap()
+ 
+    blur = cv2.GaussianBlur(depth, (5, 5), 0)
+ 
+    cv2.imshow('image', blur)
+    cv2.waitKey(10)
