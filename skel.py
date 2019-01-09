@@ -8,19 +8,11 @@ import ctypes
 import sys
 import clr
 
-#add Kinect dll to workspace 
-# sys.path.append(r"C:\Program Files\Microsoft SDKs\Kinect\v1.8\Assemblies")
+#add custom Kinect dll to workspace 
 sys.path.append(r"C:\Users\Michael\source\repos\KinectConverter\KinectConverter\bin\Debug\netstandard2.0")
-# clr.AddReference(r"Microsoft.Kinect")
 clr.AddReference(r"KinectConverter")
 
-##TODO: TRY WRITING YOUR OWN DLL SO THAT YOU CAN INSTANTIATE SENSOR OBJECT
-
-#sensor object from dll
-# from Microsoft.Kinect import Microsoft.Kinect
-# from Microsoft.Kinect import KinectSensor
-# from Microsoft.Kinect import KinectSensor, CoordinateMapper, DepthImageFormat, ColorImageFormat, SkeletonPoint
-# sensor = KinectSensor #Microsoft.Kinect()
+#object from dll
 from KinectConverter import Converter 
 conv = Converter() 
 
@@ -30,46 +22,41 @@ H = 480
 
 ## kinect video streaming ##
 def video_handler_function(frame):
-	# frame = np.array(frame)
 	video = np.empty((480,640,4), np.uint8)
+	frame.image.copy_bits(video.ctypes.data)	
 	coords = track_skel()
 	if coords != None:
-		# coords = kinect.body_joint_to_color_space(coords)
-		coords = convert_coords(coords.x, coords.y, coords.z) 
-		# coords = convert_coords(coords)
-		# coords = (coords.x, coords.y)
-		print(coords.x, coords.y)
-	frame.image.copy_bits(video.ctypes.data)
-	if coords != None: 
-		cv2.circle(video,(int(coords.x),int(coords.y)), 12, (0,0,255), 1)
+		converted_coords = [convert_coords(c.x, c.y, c.z) for c in coords]
+		for center in converted_coords:
+			cv2.circle(video, (int(center.x), int(center.y)), 12, (0,0,255), 2)
 	cv2.imshow('KINECT Video Stream', video)
 
+	##TODO: fix issue where if too close code breaks - add try/catch and print warning 
+
 def track_skel(): 
+	joints = [JointId.Head, 
+			JointId.ShoulderCenter, 
+            JointId.ShoulderLeft, 
+            JointId.ElbowLeft, 
+            JointId.WristLeft, 
+            JointId.HandLeft,
+            JointId.ShoulderRight, 
+            JointId.ElbowRight, 
+            JointId.WristRight, 
+            JointId.HandRight,
+            JointId.HipCenter, 
+         	JointId.Spine]
 	frame = kinect.skeleton_engine.get_next_frame()                            
-	for skeleton in frame.SkeletonData:                                                     # We check frame's skeleton data
-		if skeleton.eTrackingState == nui.SkeletonTrackingState.TRACKED:                    # Check if skeleton is set as TRACKED
-			coordinates = skeleton.SkeletonPositions                                            # skeleton.position returns our coordinates
-			# print "Head: " + str(coordinates[JointId.Head])
-			return coordinates[JointId.Head]
+	for skeleton in frame.SkeletonData:                                                     
+		if skeleton.eTrackingState == nui.SkeletonTrackingState.TRACKED:                    
+			coordinates = skeleton.SkeletonPositions                                            
+			return [coordinates[j] for j in joints]
 
 def convert_coords(x, y, z): 
-	# cm = CoordinateMapper()
-	# point = SkeletonPoint()
-	# point.X = x
-	# point.Y = y
-	# point.Z = z
-	# print(point)
-	# color = CoordinateMapper.MapSkeletonPointToColorPoint(point, ColorImageFormat.RgbResolution640x480Fps30)
-	# depth = CoordinateMapper.MapSkeletonPointToDepthPoint(point, DepthImageFormat.Resolution320x240Fps30)
-	# depth = CoordinateMapper.MapSkeletonPointToDepthPoint(x, DepthImageFormat.Resolution320x240Fps30)
-	# color = CoordinateMapper.MapDepthPointToColorPoint(DepthImageFormat.Resolution320x240Fps30, depth, ColorImageFormat.RgbResolution640x480Fps30);
-	# color_y = CoordinateMapper.MapDepthPointToColorPoint(DepthImageFormat.Resolution320x240Fps30, depth_y, ColorImageFormat.RgbResolution640x480Fps30);
 	color = conv.ConvertPoints(x, y, z)
 	return color
-	# return nui.SkeletonEngine.skeleton_to_depth_image(coords) 
 
 kinect = nui.Runtime()
-# kinect = PyKinectRuntime() 
 kinect.video_frame_ready += video_handler_function
 kinect.skeleton_engine.enabled = True   
 kinect.video_stream.open(nui.ImageStreamType.Video,2,nui.ImageResolution.Resolution640x480, nui.ImageType.Color)
