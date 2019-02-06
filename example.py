@@ -1,37 +1,46 @@
-import pykinect
-from pykinect import nui
-import time 
-import cv2
-import numpy
+from kivy.app import App
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+import kivy.uix.screenmanager
+from kivy.lang import Builder
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.scrollview import ScrollView
 
-## kinect video streaming ##
-def video_handler_function(frame):
-	video = numpy.empty((480,640,4), numpy.uint8)
-	frame.image.copy_bits(video.ctypes.data)
-	cv2.imshow('KINECT Video Stream', video)
+class LoginScreen(GridLayout):
+    pass
 
-kinect = nui.Runtime()
-kinect.video_frame_ready += video_handler_function
-kinect.video_stream.open(nui.ImageStreamType.Video,2,nui.ImageResolution.Resolution640x480, nui.ImageType.Color)
+    def __init__(self, **kwargs):
+        super(LoginScreen, self).__init__(**kwargs)
+        self.cols = 2
+        self.add_widget(Label(text='Physician Name'))
+        self.physicianname = TextInput(multiline=False)
+        self.add_widget(self.physicianname)
+        self.add_widget(Label(text='Patient Name'))
+        self.patientname = TextInput(multiline=False)
+        self.add_widget(self.patientname)
+    
 
-cv2.namedWindow('KINECT Video Stream', cv2.WINDOW_AUTOSIZE)
+class MainScreen(Screen):
+	pass
 
-while True:
-	key = cv2.waitKey(1)
-	if key == 27: break
+class AnotherScreen(Screen):
+    pass
 
-kinect.close()
-cv2.destroyAllWindow()
+class ExerciseScreen(Screen):
+	pass
 
-## Collect skeleton data ##
-# kinect = nui.Runtime()
-# kinect.skeleton_engine.enabled = True                                                    # We will only be detecting our skeleton
+class ListScreen(Screen):
+	pass
+class ScreenManagement(ScreenManager):
+    pass
 
-# while (True):
-# 	frame = kinect.skeleton_engine.get_next_frame()                            # Getting only 1 frame
-# 	for skeleton in frame.SkeletonData:                                                     # We check frame's skeleton data
-# 		if skeleton.eTrackingState == nui.SkeletonTrackingState.TRACKED:                    # Check if skeleton is set as TRACKED
-# 			coordinates = skeleton.SkeletonPositions                                            # skeleton.position returns our coordinates
-# 			print "Head: " + str(coordinates[JointId.Head])
+presentation = Builder.load_file("Main.kv")
 
-# time.sleep(0.1)    
+class MainApp(App):
+    def build(self):
+        return presentation
+
+if __name__ == '__main__':
+	MainApp().run()
+	  

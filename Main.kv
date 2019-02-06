@@ -1,0 +1,85 @@
+#File name: untitled.py
+#: kivy 1.8.0
+
+ScreenManagement:
+    MainScreen:
+    AnotherScreen:
+    ExerciseScreen:
+    ListScreen:
+	
+<MainScreen>:
+    name: "main"
+    FloatLayout:
+        Button:
+            color: 0.41, 0.42, 0.74, 1
+            text: "Welcome to BLAsT World!!"
+            font_size: 70
+        Button:
+            color: 0, 0, 0.74, 1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Next"
+            on_release: app.root.current = 'other'
+            pos_hint: {"right":1, "bottom":1}
+
+
+            
+<AnotherScreen>:
+    name: "other"
+    FloatLayout:
+        LoginScreen
+        Button:
+            color: 0,0,1,1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Next"
+            on_release: app.root.current = 'exercise'
+            pos_hint: {"right":1, "bottom":1}
+
+        Button:
+            color: 0,1,0,1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Go back"
+            on_release: app.root.current = 'main'
+            pos_hint: {"left":1, "bottom":1}
+
+<ExerciseScreen>:
+    name: "exercise"
+    Button:
+        text: "Pick an exercise"
+        font_size: 50
+        on_release: app.root.current = 'list'
+
+
+<ListScreen>:
+    name: "list"
+    FloatLayout:
+        Button:
+            color: 0,0.5,0,1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Exercise 1"
+            pos_hint: {"right":0.3, "top":0.7} 
+
+        Button:
+            color: 0,0.5,0,1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Exercise 2"
+            pos_hint: {"right":0.3, "top":0.6} 
+
+        Button:
+            color: 0,0.5,0,1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Exercise 3"
+            pos_hint: {"right":0.3, "top":0.5} 
+
+        Button:
+            color: 0,0,1,1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Start Kinect"
+            on_release: app.root.current = 'main'
+            pos_hint: {"right":1, "bottom":1} 
