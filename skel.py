@@ -146,10 +146,10 @@ cv2.namedWindow('KINECT Video Stream', cv2.WINDOW_AUTOSIZE)
 
 while True:
 
-	key = cv2.waitKey(1)
-	if key == 33: break
+	key = cv2.waitKey(32)
+	if key == 32: break
 
-time.sleep(0.1)  
+# time.sleep(0.1)  
 
 kinect.close()
-cv2.destroyAllWindow()   
+cv2.destroyAllWindows()   

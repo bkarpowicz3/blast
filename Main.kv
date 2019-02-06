@@ -1,4 +1,4 @@
-#File name: untitled.py
+#File name: example_gui.py
 #: kivy 1.8.0
 
 ScreenManagement:
@@ -13,7 +13,7 @@ ScreenManagement:
         Button:
             color: 0.41, 0.42, 0.74, 1
             text: "Welcome to BLAsT World!!"
-            font_size: 70
+            font_size: 65
         Button:
             color: 0, 0, 0.74, 1
             font_size: 25
@@ -47,39 +47,43 @@ ScreenManagement:
 <ExerciseScreen>:
     name: "exercise"
     Button:
-        text: "Pick an exercise"
+        text: "Start BLAsT Measurement!!"
         font_size: 50
         on_release: app.root.current = 'list'
-
 
 <ListScreen>:
     name: "list"
     FloatLayout:
         Button:
-            color: 0,0.5,0,1
-            font_size: 25
-            size_hint: 0.2, 0.1
-            text: "Exercise 1"
-            pos_hint: {"right":0.3, "top":0.7} 
+            font_size: 30
+            size_hint: 0.5, 0.1
+            text: "Start Kinect Video"
+            on_release: root.start_kinect()
+            pos_hint: {"right":0.7, "top":0.7} 
 
         Button:
-            color: 0,0.5,0,1
-            font_size: 25
-            size_hint: 0.2, 0.1
-            text: "Exercise 2"
-            pos_hint: {"right":0.3, "top":0.6} 
+            font_size: 30
+            size_hint: 0.5, 0.1
+            text: "Start Rotational Measurement"
+            pos_hint: {"right":0.7, "top":0.6} 
 
         Button:
-            color: 0,0.5,0,1
-            font_size: 25
-            size_hint: 0.2, 0.1
-            text: "Exercise 3"
-            pos_hint: {"right":0.3, "top":0.5} 
+            font_size: 30
+            size_hint: 0.5, 0.1
+            text: "Finger Flexion"
+            pos_hint: {"right":0.7, "top":0.5} 
 
         Button:
-            color: 0,0,1,1
+            color: 0,1,0,1
             font_size: 25
             size_hint: 0.2, 0.1
-            text: "Start Kinect"
-            on_release: app.root.current = 'main'
+            text: "Exit"
+            on_release: app.Exit()
             pos_hint: {"right":1, "bottom":1} 
+
+        Button:
+            font_size: 25
+            size_hint: 0.5, 0.1
+            text: "Press the Spacebar to close Kinect"
+            pos_hint: {"right":0.6, "bottom":1}
+
