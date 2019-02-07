@@ -8,25 +8,27 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scrollview import ScrollView
 import cv2
 
-class LoginScreen(GridLayout):
+class LoginScreen(Screen):
     pass
 
-    def __init__(self, **kwargs):
-        super(LoginScreen, self).__init__(**kwargs)
-        self.cols = 2
-        self.add_widget(Label(text='Physician Name'))
-        self.physicianname = TextInput(multiline=False)
-        self.add_widget(self.physicianname)
-        self.add_widget(Label(text='Patient Name'))
-        self.patientname = TextInput(multiline=False)
-        self.add_widget(self.patientname)
+    # def __init__(self, **kwargs):
+    #     super(LoginScreen, self).__init__(**kwargs)
+    #     self.cols = 2
+    #     self.rows = 2
+    #     self.paddin
+    #     self.add_widget(Label(text='Physician Name'))
+    #     self.physicianname = TextInput(multiline=False)
+    #     self.add_widget(self.physicianname)
+    #     self.add_widget(Label(text='Patient Name'))
+    #     self.patientname = TextInput(multiline=False)
+    #     self.add_widget(self.patientname)
     
 
 class MainScreen(Screen):
 	pass
 
-class AnotherScreen(Screen):
-    pass
+# class AnotherScreen(Screen):
+#     pass
 
 class ExerciseScreen(Screen):
 	pass

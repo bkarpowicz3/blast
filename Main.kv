@@ -3,15 +3,15 @@
 
 ScreenManagement:
     MainScreen:
-    AnotherScreen:
+    LoginScreen:
     ExerciseScreen:
     ListScreen:
 	
 <MainScreen>:
     name: "main"
     FloatLayout:
-        Button:
-            color: 0.41, 0.42, 0.74, 1
+        Label:
+            color: 0.7, 0.42, 0.74, 1
             text: "Welcome to BLAsT World!!"
             font_size: 65
         Button:
@@ -19,37 +19,94 @@ ScreenManagement:
             font_size: 25
             size_hint: 0.2, 0.1
             text: "Next"
-            on_release: app.root.current = 'other'
+            on_release: app.root.current = 'login'
             pos_hint: {"right":1, "bottom":1}
-
-
-            
-<AnotherScreen>:
-    name: "other"
-    FloatLayout:
-        LoginScreen
-        Button:
-            color: 0,0,1,1
-            font_size: 25
-            size_hint: 0.2, 0.1
-            text: "Next"
-            on_release: app.root.current = 'exercise'
-            pos_hint: {"right":1, "bottom":1}
-
         Button:
             color: 0,1,0,1
             font_size: 25
             size_hint: 0.2, 0.1
-            text: "Go back"
+            text: "Exit"
+            on_release: app.Exit()
+            pos_hint: {"left":1, "bottom":1} 
+            
+<LoginScreen>:
+    name: "login"
+    FloatLayout:
+        BoxLayout
+            id: login_layout
+            orientation: 'vertical'
+            padding: [10,80,10,80]
+            spacing: 40
+
+            Label:
+                text: 'Login Info Here'
+                font_size: 40
+
+            BoxLayout:
+                orientation: 'vertical'
+
+                Label:
+                    text: 'Physician Name'
+                    font_size: 30
+                    halign: 'left'
+                    text_size: root.width-30, 30
+
+                TextInput:
+                    id: Physician Name
+                    multiline:False
+                    font_size: 20
+
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    text: 'Patient Name'
+                    halign: 'left'
+                    font_size: 30
+                    text_size: root.width-30, 30
+
+                TextInput:
+                    id: Patient Name
+                    multiline:False
+                    font_size: 20
+        
+        Button:
+            color: 0,0,1,1
+            font_size: 20
+            size_hint: 0.17, 0.08
+            text: "Next"
+            on_release: app.root.current = 'exercise'
+            pos_hint: {"right":1, "bottom":1} 
+
+        Button:
+            color: 0,1,0,1
+            font_size: 20
+            size_hint: 0.17, 0.08
+            text: "Previous"
             on_release: app.root.current = 'main'
             pos_hint: {"left":1, "bottom":1}
 
 <ExerciseScreen>:
     name: "exercise"
     Button:
-        text: "Start BLAsT Measurement!!"
+        text: "Begin BLAsT Measurement!!"
         font_size: 50
         on_release: app.root.current = 'list'
+    Button:
+        color: 0,0,1,1
+        font_size: 25
+        size_hint: 0.2, 0.1
+        text: "Next"
+        on_release: app.root.current = 'list'
+        pos_hint: {"right":1, "bottom":1}
+
+    Button:
+        color: 0,1,0,1
+        font_size:25
+        size_hint: 0.2, 0.1
+        text: "Previous"
+        font_size: 25
+        on_release: app.root.current = 'login'
+        pos_hint: {"left":1, "bottom":1} 
 
 <ListScreen>:
     name: "list"
@@ -63,27 +120,34 @@ ScreenManagement:
 
         Button:
             font_size: 30
-            size_hint: 0.5, 0.1
+            size_hint: 0.6, 0.1
             text: "Start Rotational Measurement"
-            pos_hint: {"right":0.7, "top":0.6} 
+            pos_hint: {"right":0.75, "top":0.6} 
 
         Button:
             font_size: 30
             size_hint: 0.5, 0.1
             text: "Finger Flexion"
             pos_hint: {"right":0.7, "top":0.5} 
-
         Button:
             color: 0,1,0,1
+            font_size:25
+            size_hint: 0.2, 0.1
+            text: "Previous"
+            font_size: 25
+            on_release: app.root.current = 'exercise'
+            pos_hint: {"left":1, "bottom":1} 
+        Button:
+            color: 0,0,1,1
             font_size: 25
             size_hint: 0.2, 0.1
-            text: "Exit"
+            text: "Collect Data"
             on_release: app.Exit()
             pos_hint: {"right":1, "bottom":1} 
 
-        Button:
+        Label:
             font_size: 25
             size_hint: 0.5, 0.1
             text: "Press the Spacebar to close Kinect"
-            pos_hint: {"right":0.6, "bottom":1}
+            pos_hint: {"right":0.75, "bottom":1}
 
