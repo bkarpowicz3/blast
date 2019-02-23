@@ -1,5 +1,4 @@
 /*Attempt to convert quaternions to euler angles
- * https://www.tutorialspoint.com/cprogramming/c_return_arrays_from_function.htm
  */
 #include <math.h>
 #include <Arduino.h>
