@@ -16,7 +16,7 @@ void loop() {
 
 float * quat2eul(float q0, float q1, float q2, float q3) {
 
-  float roll = degrees(atan2((2*(q0*q1+q2*q3)),(1-2*(square(q1)+square(q2))))); //arctan2 = arc tangent of y/x
+  float roll = degrees(atan2((2*(q0*q1+q2*q3)),(1-2*(square(q1)+square(q2)))));
   float pitch = degrees(asin(2*(q0*q2-q3*q1)));
   float yaw = degrees(atan2((2*(q0*q3+q1*q2)),(1-2*(square(q2)+square(q3)))));
   float euler[3] = {roll, pitch, yaw};
