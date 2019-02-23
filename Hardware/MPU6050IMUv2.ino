@@ -1,3 +1,6 @@
+/* 
+* Quaternions value output to 4 decimal places
+*/
 /* MPU6050 Basic Example with IMU  
  by: Kris Winer
  date: May 10, 2014
@@ -11,7 +14,7 @@
  SDA and SCL should have external pull-up resistors (to 3.3V).
  10k resistors worked for me. They should be on the breakout
  board.
- 
+ `
  Hardware setup:
  MPU6050 Breakout --------- Arduino
  3.3V --------------------- 3.3V
