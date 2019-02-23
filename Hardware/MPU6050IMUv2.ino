@@ -1,6 +1,8 @@
 /* 
 * Quaternions value output to 4 decimal places
 */
+
+
 /* MPU6050 Basic Example with IMU  
  by: Kris Winer
  date: May 10, 2014
