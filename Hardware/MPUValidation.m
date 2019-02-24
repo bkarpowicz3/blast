@@ -5,7 +5,7 @@
 
 format long
 
-filename = 'Data.txt'; %insert filename
+filename = 'DummyData.txt'; %insert filename
 delimiterIn = '\t'; %determine what delimiter will be based on textfile
 headerLinesIn = 1; %Number of text header lines in ASCII file
 
@@ -13,9 +13,16 @@ A = importdata(filename, delimiterIn, headerLinesIn);
 [m,n] = size(A.data);
 %disp(A.data);
 
-error = zeros(m,1); %initialize error array
+errorXAxis = zeros(m,1); %initialize error array
+errorYAxis = zeros(m,1); %initialize error array
+errorZAxis = zeros(m,1); %initialize error array
+errorZAxisAct = zeros(m,1);
 
-measAngle = 25; %angle from protractor
+%Angle from protractor
+%Should only vary one axis at a time
+measuredX = 0; 
+measuredY = 0;
+measuredZ = 10; 
 
 for i = 1:m
    quaternion = A.data(i,:);
@@ -25,8 +32,17 @@ for i = 1:m
    eulXYZ = (180/pi)*fliplr(eulZYX); 
    
    %disp(eulXYZ);
-   %change eul(int) depending on direction being measured
-   error(i,1) = 100*(abs(eulXYZ(1)-measAngle))./measAngle;
+   
+   %Calculate error of other axis
+   errorXAxis(i,1) = (abs(eulXYZ(1)-measuredX));
+   
+   errorYAxis(i,1) = (abs(eulXYZ(2)-measuredY));
+   
+   errorZAxis(i,1) = 100*(abs(eulXYZ(3)-measuredZ))./(measuredZ);
+   %disp(errorZAxis(i,1))
 end 
 
-errorAvg = sum(error)/m;
+errorXAxisAvg = sum(errorXAxis)/m;
+errorYAxisAvg = sum(errorYAxis)/m;
+errorZAxisAvg = sum(errorZAxis)/m;
+disp(errorZAxisAvg);
