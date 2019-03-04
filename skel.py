@@ -10,10 +10,17 @@ import sys
 import clr
 
 #add custom Kinect dll to workspace 
-sys.path.append(r"C:\Users\Michael\source\repos\KinectConverter\KinectConverter\bin\Debug\netstandard2.0")
-clr.AddReference(r"KinectConverter")
+# sys.path.append(r"C:\\Users\\esese\\Documents\\KinectConverter\\KinectConverter\\bin\\Debug\\netstandard2.0")
+# sys.path.append(r"C:\\Source\\KinectConverter\\KinectConverter\\bin\\Release")
+# clr.AddReference(r"KinectConverter")
+sys.path.append(r"C:\\Source\\NetTest\\NetTest\\bin\\Debug")
+clr.AddReference(r"KinectHelper")
 
 #object from dll
+# from NetTest import Test
+# test = Test() 
+# print(test.Hello())
+
 from KinectConverter import Converter 
 conv = Converter() 
 
