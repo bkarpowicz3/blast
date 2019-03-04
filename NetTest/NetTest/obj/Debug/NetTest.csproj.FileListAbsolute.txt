@@ -1,0 +1,7 @@
+C:\Source\NetTest\NetTest\bin\Debug\KinectHelper.dll
+C:\Source\NetTest\NetTest\bin\Debug\KinectHelper.pdb
+C:\Source\NetTest\NetTest\bin\Debug\Microsoft.Kinect.dll
+C:\Source\NetTest\NetTest\obj\Debug\NetTest.csproj.CoreCompileInputs.cache
+C:\Source\NetTest\NetTest\obj\Debug\NetTest.csproj.CopyComplete
+C:\Source\NetTest\NetTest\obj\Debug\KinectHelper.dll
+C:\Source\NetTest\NetTest\obj\Debug\KinectHelper.pdb
