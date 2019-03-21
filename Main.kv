@@ -136,8 +136,9 @@ ScreenManagement:
         Button:
             font_size: 30
             size_hint: 0.5, 0.1
-            text: "Finger Flexion"
-            pos_hint: {"right":0.7, "top":0.5} 
+            text: "Run Parallel"
+            pos_hint: {"right":0.7, "top":0.5}
+            on_release: root.start_parallel() 
         
         Button:
             color: 0,1,0,1
@@ -160,5 +161,4 @@ ScreenManagement:
             font_size: 25
             size_hint: 0.5, 0.1
             text: "Press the Spacebar to close Kinect"
-            pos_hint: {"right":0.75, "bottom":1}
-
+			pos_hint: {"right":0.75, "bottom":1}
