@@ -9,20 +9,13 @@ import ctypes
 import sys
 import clr
 
-#add custom Kinect dll to workspace 
-# sys.path.append(r"C:\\Users\\esese\\Documents\\KinectConverter\\KinectConverter\\bin\\Debug\\netstandard2.0")
-# sys.path.append(r"C:\\Source\\KinectConverter\\KinectConverter\\bin\\Release")
-# clr.AddReference(r"KinectConverter")
 sys.path.append(r"C:\\Source\\NetTest\\NetTest\\bin\\Debug")
 clr.AddReference(r"KinectHelper")
 
-#object from dll
-# from NetTest import Test
-# test = Test() 
-# print(test.Hello())
-
 from KinectConverter import Converter 
 conv = Converter() 
+
+metrics = []
 
 #color video dimensions
 L = 640
@@ -34,7 +27,6 @@ def video_handler_function(frame):
 	frame.image.copy_bits(video.ctypes.data)	
 	coords = track_skel()
 	if coords != None:
-		# print("Tracking...")
 		converted_coords = [convert_coords(c.x, c.y, c.z) for c in coords]
 		try:
 			for center in converted_coords:
@@ -113,9 +105,11 @@ def compute_metrics(converted_coords, video):
 	cv2.putText(video, "Shoulder Angle: " + str(shoulder_angle), (40,400), cv2.FONT_HERSHEY_SIMPLEX, float(0.5), (0,0,255), 2)
 
 	#left elbow angle calculation
-	elbow_angle(elbowL, wristL, shoulderL, "Left", 420, video)
+	elbow_L = elbow_angle(elbowL, wristL, shoulderL, "Left", 420, video)
 	#right elbow angle calculation
-	elbow_angle(elbowR, wristR, shoulderR, "Right", 440, video)
+	elbow_R = elbow_angle(elbowR, wristR, shoulderR, "Right", 440, video)
+
+	metrics.append([shoulder_angle, elbow_L, elbow_R])
 
 def elbow_angle(elbowL, wristL, shoulderL, LoR, posv, video): 
 	#distance between the elbow and wrist
@@ -141,6 +135,7 @@ def elbow_angle(elbowL, wristL, shoulderL, LoR, posv, video):
 	elbow_angleL = alpha+beta;
 	elbow_angleL = round(elbow_angleL, 3);
 	cv2.putText(video, LoR + " Elbow Angle: " + str(elbow_angleL), (40,posv), cv2.FONT_HERSHEY_SIMPLEX, float(0.5), (0,0,255), 2)
+	return elbow_angleL
 
 
 #runtime code  
@@ -156,7 +151,10 @@ while True:
 	key = cv2.waitKey(32)
 	if key == 32: break
 
-# time.sleep(0.1)  
-
 kinect.close()
+
+print('Saving data...')
+a = np.asarray(metrics)
+np.savetxt("kinect.csv", a, delimiter=",")
+
 cv2.destroyAllWindows()   

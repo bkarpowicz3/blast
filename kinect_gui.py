@@ -14,11 +14,15 @@ import cv2
 import xlwt 
 import os
 from xlwt import Workbook
+import datetime
+import csv
+import shutil
+
 wb = Workbook()
+t = datetime.datetime.now().strftime('%Y-%m-%d-%H.%M')
 
 #Window.clearcolor = (0.3, 0.1, 0.1, 0)
 class LoginScreen(Screen):
-    pass
 
     def submit_name(self):
         self.physicianname = self.physicianname_text_input.text
@@ -27,45 +31,68 @@ class LoginScreen(Screen):
         self.physicianname = ''
         self.patientname = ''
 
-
     def save(self):
-    	sheet = wb.add_sheet('Sheet 1')
-    	sheet.write(0,2,'Physician Name')
-    	sheet.write(1,2,'Patient Name')
-    	sheet.write(0,3, str(self.physicianname))
-    	sheet.write(1,3, str(self.patientname))
-    	wb.save(str(self.patientname) + '.xls')
- 
-    #     with open("Database.xls", "w") as fobj:
-    #     	obj.write(0,0,'Physician Name')
-    #     	obj.write(0,1,'Patient Name')
-    #         #fobj.write(1,0, str(self.physicianname))
-    #         #fobj.write(1,1, str(self.patientname))
+        # make patient name folder if does not exist 
+        global patient
+        patient = str(self.patientname).lower()
+        path = "C:\Users\esese\Documents\\" + patient
 
+        # within that folder, make date/time folder 
+        if not os.path.isdir(path): 
+            os.makedirs(path)
+        os.makedirs(path + '\\' + t) 
+        # save record of sesssion
+        # sheet = wb.add_sheet('Sheet 1')
+        # sheet.write(0,0,'Physician Name')
+        # sheet.write(1,0,'Patient Name')
+        # sheet.write(0,1, str(self.physicianname))
+        # sheet.write(1,1, str(self.patientname))
+        # sheet.write()
+        # wb.save(path + '\\' + patient + '.xls')
+        # add timestamps to this 
+        # change to csv + make sure do not overwrite 
+        # if not os.path.isdir(path + '\\' + patient): 
+        #     os.makedirs(path + '\\' + patient + '.csv')
+            # later add header row? 
+            # with open(path + '\\' + patient +'.csv', 'wb') as csv_file: 
+            #     writer = csv.writer(csv_file, delimiter = ',', quotechar = '|')
+            #     #writer.writerow((str(self.physicianname) )
+            #     writer.writerow(['Patient Name',str(self.patientname)])
+            #     writer.writerow(['Physician Name',str(self.physicianname)])
+            #     writer.writerow(['Date',(t)])
+            # save kinect & arduino data inside date/time folder
+            # with open(path + '\\' + t +'\\' + patient + t + '\\kinectdata.csv', 'wb') as csv_file: 
+            #     writer = csv.writer(csv_file, delimiter = ',', quotechar = '|')
+            # with open(path + '\\' + t +'\\' + patient + t + '\\imu.csv', 'wb') as csv_file: 
+            #     writer = csv.writer(csv_file, delimiter = ',', quotechar = '|')
+            # with open(path + '\\' + t +'\\' + patient + t + '\\ log.csv', 'wb') as csv_file: 
+            #     writer = csv.writer(csv_file, delimiter = ',', quotechar = '|')
+            #     writer.writerow(['Patient Name',str(self.patientname)])
+            #     writer.writerow(['Physician Name',str(self.physicianname)])
+            #     writer.writerow(['Date',(t)])
+        # if os.path.exists(path + '\\' + patient): 
+    # def newsave(self):
+    #     patient = str(self.patientname).lower()
+    #     path = "C:\Users\esese\Documents\\" + patient
+    #     if not os.path.isdir(path): 
+    #         os.makedirs(path)
+    #     t = datetime.datetime.now().strftime('%Y-%m-%d-%H.%M')
+    #     os.makedirs(path + '\\' + t) 
+    #     if os.path.exists(path + '\\' + patient + '.csv'): 
+    #         with open(path + '\\' + patient +'.csv','a') as csv_file:
+    #             writer = csv.writer(csv_file,  delimiter = ',')
+    #             writer.writerow(['Physician Name',str(self.physicianname)])
+    #             writer.writerow(['Date',(t)])
 
-    # def load(self):
-    #     with open("Database.xls") as fobj:
-    #         for name in fobj:
-    #             self.name = name.rstrip()
-
-
-    # def __init__(self, **kwargs):
-    #     super(LoginScreen, self).__init__(**kwargs)
-    #     self.cols = 2
-    #     self.rows = 2
-    #     self.paddin
-    #     self.add_widget(Label(text='Physician Name'))
-    #     self.physicianname = TextInput(multiline=False)
-    #     self.add_widget(self.physicianname)
-    #     self.add_widget(Label(text='Patient Name'))
-    #     self.patientname = TextInput(multiline=False)
-    #     self.add_widget(self.patientname)
+    # def collect_data(self):
+    #     source1 = "C:\Users\esese\Documents\\blast-master\\kinect.csv"
+    #     source2 = "C:\Users\esese\Documents\\blast-master\\imu.csv"
+    #     dest = "C:\Users\esese\Documents\\" + str(self.patientname).lower() + '\\' + t 
+    #     shutil.move(source1, dest)
+        # shutil.move(source2, dest)
     
 class MainScreen(Screen):
 	pass
-
-# class AnotherScreen(Screen):
-#     pass
 
 class ExerciseScreen(Screen):
 	pass
@@ -87,20 +114,17 @@ class ListScreen(Screen):
     
         os.system('python run_parallel.py')    
 
+    def collect_data(self):
+        global patient
+        source1 = "C:\Users\esese\Documents\\blast-master\\kinect.csv"
+        source2 = "C:\Users\esese\Documents\\blast-master\\imu.csv"
+
+        dest = "C:\Users\esese\Documents\\" + patient + '\\' + t 
+        shutil.move(source1, dest)
+        # shutil.move(source2, dest)
+    
 class ScreenManagement(ScreenManager):
     pass
-
-
-# class KinectScreen(Screen):
-#     pass
-
-#     def __init__(self, **kwargs): 
-#         super(KinectScreen, self).__init__(**kwargs)
-
-
-
-
-
 
 presentation = Builder.load_file("Main.kv")
 
