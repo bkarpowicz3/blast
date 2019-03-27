@@ -10,6 +10,9 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
+from kivy.uix.dropdown import DropDown
+from kivy.uix.button import Button
+from kivy.base import runTouchApp
 import cv2
 import xlwt 
 import os
@@ -17,6 +20,13 @@ from xlwt import Workbook
 import datetime
 import csv
 import shutil
+from kivy.uix.spinner import Spinner
+import seaborn as sns
+import numpy as np 
+import matplotlib.pyplot as plt
+import csv
+import pandas as pd 
+
 
 wb = Workbook()
 t = datetime.datetime.now().strftime('%Y-%m-%d-%H.%M')
@@ -122,11 +132,138 @@ class ListScreen(Screen):
         dest = "C:\Users\esese\Documents\\" + patient + '\\' + t 
         shutil.move(source1, dest)
         # shutil.move(source2, dest)
-    
+ 
+
+class DropdownScreen(Screen):
+    def spinner_clicked(self, value):
+        kinect_graphs = ['Shoulder Angles', 'Left Elbow Angles', 'Right Elbow Angles']
+        if value in kinect_graphs: 
+            self.kinect_graph(value)
+
+        imu_graphs = ['Roll', 'Pitch', 'Yaw']
+        if value in imu_graphs: 
+            self.imu_graph(value)
+
+        print("Spinner Value " + value)
+
+    def kinect_graph(self, variable): 
+        global patient
+        path = "C:\Users\esese\Documents\\" + patient
+        # read in csv 
+        data = []
+        with open(path + '\\' + t + '\\kinect.csv') as csv_file: # will need to change this path
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            for row in csv_reader:
+                data.append(row)
+            data = np.array(data)
+
+        if variable == 'Shoulder Angles':
+            toplot = data[:, 0]
+            color = 'blue'
+        elif variable == 'Left Elbow Angles': 
+            toplot = data[:, 1]
+            color = 'red'
+        elif variable == 'Right Elbow Angles':  
+            toplot = data[:, 2]
+            color = 'green'
+
+        df = pd.DataFrame(toplot)
+        df = df.astype('float')
+        df.columns = [variable]
+
+        fs = 30 #frames per second 
+        time = np.linspace(0, len(toplot)/float(fs), len(toplot))
+
+        df['Time (s)'] = time
+
+        mov_av = self.moving_average(np.array(df[variable])[1:len(toplot)], fs)  
+        time_resampled = np.linspace(0, len(toplot)/float(fs), len(mov_av))
+        avdf = pd.DataFrame(mov_av)
+        avdf.columns = ['Average']
+        avdf['Time (s)'] = time_resampled
+
+        sns.set()
+        plt.plot(avdf['Time (s)'], avdf['Average'], 'k--')
+        plt.scatter(df['Time (s)'], df[variable], color = color)
+        plt.xlabel('Time (s)')
+        plt.ylabel(variable + ' (deg)')
+        plt.title(variable)
+        plt.legend(['Moving Average', 'Raw Data'], loc = 'best', shadow=True)
+        plt.show()
+
+    def imu_graph(self, variable): 
+        global patient
+        path = "C:\Users\esese\Documents\\" + patient
+        # read in csv 
+        data = []
+        with open(path + '\\' + t + '\\imu.csv') as csv_file: # will need to change this path
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            for row in csv_reader:
+                data.append(row)
+            data = np.array(data)
+
+        if variable == 'Roll':
+            toplot = data[:, 0]
+            color = 'darkviolet'
+        elif variable == 'Pitch': 
+            toplot = data[:, 1]
+            color = 'darkorange'
+        elif variable == 'Yaw':  
+            toplot = data[:, 2]
+            color = 'hotpink'
+
+        df = pd.DataFrame(toplot)
+        df = df.astype('float')
+        df.columns = [variable]
+
+        fs = 30 #frames per second 
+        time = np.arange(0, len(toplot)/float(fs), 1.0/fs)
+
+        df['Time (s)'] = time
+
+        mov_av = self.moving_average(np.array(df[variable])[1:len(toplot)], fs)  
+        time_resampled = np.linspace(0, len(toplot)/float(fs), len(mov_av))
+        avdf = pd.DataFrame(mov_av)
+        avdf.columns = ['Average']
+        avdf['Time (s)'] = time_resampled
+
+        sns.set()
+        plt.plot(avdf['Time (s)'], avdf['Average'], 'k--')
+        plt.scatter(df['Time (s)'], df[variable], color = color)
+        plt.xlabel('Time (s)')
+        plt.ylabel(variable + ' (deg)')
+        plt.title(variable)
+        plt.legend(['Moving Average', 'Raw Data'], loc = 'best', shadow=True)
+        plt.show()
+
+    def moving_average(self, data, fs): 
+        N = fs/5 # frame rate divided by five - for kinect, 200ms
+        return np.convolve(data, np.ones((N,))/N, mode='valid')
+
+
+    # def show_selected_value(spinner, text):
+    #     print('The spinner', spinner, 'have text', text)
+
+    # def build_data(self):
+    #     spinner = Spinner(
+    #         # default value shown
+    #         text='Home',
+    #         # available values
+    #         values=('Home', 'Work', 'Other', 'Custom'),
+    #         # just for positioning in our example
+    #         size_hint=(None, None),
+    #         size=(100, 44),
+    #         pos_hint={'center_x': .5, 'center_y': .5})        
+
+    #     spinner.bind(text=show_selected_value)
+    #     runTouchApp(spinner)
+
 class ScreenManagement(ScreenManager):
     pass
 
+
 presentation = Builder.load_file("Main.kv")
+
 
 class MainApp(App):
     def build(self):
