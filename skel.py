@@ -15,16 +15,20 @@ clr.AddReference(r"KinectHelper")
 from KinectConverter import Converter 
 conv = Converter() 
 
-metrics = []
-
 #color video dimensions
 L = 640
 H = 480
 
+metrics = []
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+video_writer = cv2.VideoWriter('kinect.avi', fourcc, 30.0, (int(L), int(H)), True)
+
 # kinect video streaming
 def video_handler_function(frame):
 	video = np.empty((480,640,4), np.uint8)
-	frame.image.copy_bits(video.ctypes.data)	
+	frame.image.copy_bits(video.ctypes.data)
+	v = video[:,:,0:3]
+	save_video(v.astype('uint8'))
 	coords = track_skel()
 	if coords != None:
 		converted_coords = [convert_coords(c.x, c.y, c.z) for c in coords]
@@ -38,6 +42,10 @@ def video_handler_function(frame):
 	else:
 		cv2.putText(video, "SUBJECT IS TOO CLOSE TO DEVICE", (40,50), cv2.FONT_HERSHEY_SIMPLEX, float(1), (0,0,255), 2)
 	cv2.imshow('KINECT Video Stream', video)
+
+# video saving 
+def save_video(frame):
+	video_writer.write(frame)
 
 # obtains skeletal coordinates in Kinect space 
 def track_skel(): 
@@ -140,6 +148,7 @@ def elbow_angle(elbowL, wristL, shoulderL, LoR, posv, video):
 
 #runtime code  
 kinect = nui.Runtime()
+# kinect.video_frame_ready += save_video
 kinect.video_frame_ready += video_handler_function
 kinect.skeleton_engine.enabled = True   
 kinect.video_stream.open(nui.ImageStreamType.Video,2,nui.ImageResolution.Resolution640x480, nui.ImageType.Color)
@@ -152,7 +161,7 @@ while True:
 	if key == 32: break
 
 kinect.close()
-
+video_writer.release()
 print('Saving data...')
 a = np.asarray(metrics)
 np.savetxt("kinect.csv", a, delimiter=",")

@@ -128,9 +128,11 @@ class ListScreen(Screen):
         global patient
         source1 = "C:\Users\esese\Documents\\blast-master\\kinect.csv"
         source2 = "C:\Users\esese\Documents\\blast-master\\imu.csv"
+        source3 = "C:\Users\esese\Documents\\blast-master\\kinect.avi"
 
         dest = "C:\Users\esese\Documents\\" + patient + '\\' + t 
         shutil.move(source1, dest)
+        shutil.move(source3, dest)
         # shutil.move(source2, dest)
  
 
