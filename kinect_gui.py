@@ -13,25 +13,24 @@ from kivy.core.window import Window
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
 from kivy.base import runTouchApp
+from kivy.uix.spinner import Spinner
 import cv2
 import xlwt 
 import os
-from xlwt import Workbook
 import datetime
 import csv
 import shutil
-from kivy.uix.spinner import Spinner
 import seaborn as sns
 import numpy as np 
 import matplotlib.pyplot as plt
 import csv
 import pandas as pd 
+import ctypes
 
-
-wb = Workbook()
 t = datetime.datetime.now().strftime('%Y-%m-%d-%H.%M')
+# Kinect = False
+# IMU = False
 
-#Window.clearcolor = (0.3, 0.1, 0.1, 0)
 class LoginScreen(Screen):
 
     def submit_name(self):
@@ -51,55 +50,11 @@ class LoginScreen(Screen):
         if not os.path.isdir(path): 
             os.makedirs(path)
         os.makedirs(path + '\\' + t) 
-        # save record of sesssion
-        # sheet = wb.add_sheet('Sheet 1')
-        # sheet.write(0,0,'Physician Name')
-        # sheet.write(1,0,'Patient Name')
-        # sheet.write(0,1, str(self.physicianname))
-        # sheet.write(1,1, str(self.patientname))
-        # sheet.write()
-        # wb.save(path + '\\' + patient + '.xls')
-        # add timestamps to this 
-        # change to csv + make sure do not overwrite 
-        # if not os.path.isdir(path + '\\' + patient): 
-        #     os.makedirs(path + '\\' + patient + '.csv')
-            # later add header row? 
-            # with open(path + '\\' + patient +'.csv', 'wb') as csv_file: 
-            #     writer = csv.writer(csv_file, delimiter = ',', quotechar = '|')
-            #     #writer.writerow((str(self.physicianname) )
-            #     writer.writerow(['Patient Name',str(self.patientname)])
-            #     writer.writerow(['Physician Name',str(self.physicianname)])
-            #     writer.writerow(['Date',(t)])
-            # save kinect & arduino data inside date/time folder
-            # with open(path + '\\' + t +'\\' + patient + t + '\\kinectdata.csv', 'wb') as csv_file: 
-            #     writer = csv.writer(csv_file, delimiter = ',', quotechar = '|')
-            # with open(path + '\\' + t +'\\' + patient + t + '\\imu.csv', 'wb') as csv_file: 
-            #     writer = csv.writer(csv_file, delimiter = ',', quotechar = '|')
-            # with open(path + '\\' + t +'\\' + patient + t + '\\ log.csv', 'wb') as csv_file: 
-            #     writer = csv.writer(csv_file, delimiter = ',', quotechar = '|')
-            #     writer.writerow(['Patient Name',str(self.patientname)])
-            #     writer.writerow(['Physician Name',str(self.physicianname)])
-            #     writer.writerow(['Date',(t)])
-        # if os.path.exists(path + '\\' + patient): 
-    # def newsave(self):
-    #     patient = str(self.patientname).lower()
-    #     path = "C:\Users\esese\Documents\\" + patient
-    #     if not os.path.isdir(path): 
-    #         os.makedirs(path)
-    #     t = datetime.datetime.now().strftime('%Y-%m-%d-%H.%M')
-    #     os.makedirs(path + '\\' + t) 
-    #     if os.path.exists(path + '\\' + patient + '.csv'): 
-    #         with open(path + '\\' + patient +'.csv','a') as csv_file:
-    #             writer = csv.writer(csv_file,  delimiter = ',')
-    #             writer.writerow(['Physician Name',str(self.physicianname)])
-    #             writer.writerow(['Date',(t)])
 
-    # def collect_data(self):
-    #     source1 = "C:\Users\esese\Documents\\blast-master\\kinect.csv"
-    #     source2 = "C:\Users\esese\Documents\\blast-master\\imu.csv"
-    #     dest = "C:\Users\esese\Documents\\" + str(self.patientname).lower() + '\\' + t 
-    #     shutil.move(source1, dest)
-        # shutil.move(source2, dest)
+        global Kinect
+        Kinect = False
+        global IMU
+        IMU = False
     
 class MainScreen(Screen):
 	pass
@@ -110,43 +65,66 @@ class ExerciseScreen(Screen):
 class ListScreen(Screen): 
 
     def start_kinect(self):
- 
+        global Kinect
         os.system('python skel.py')
-
-    def stop_kinect(self):
-        cv2.destroyAllWindows()
+        Kinect = True
         
     def start_imu(self):
-    
-        os.system('python Hardware\SendDataTestRun.py')
+        global IMU
+        os.system('python wearable_data.py')
+        IMU = True
 
     def start_parallel(self):
-    
-        os.system('python run_parallel.py')    
+        global Kinect
+        global IMU
+        os.system('python run_parallel.py')  
+        Kinect = True
+        IMU = True  
 
     def collect_data(self):
         global patient
-        source1 = "C:\Users\esese\Documents\\blast-master\\kinect.csv"
-        source2 = "C:\Users\esese\Documents\\blast-master\\imu.csv"
-        source3 = "C:\Users\esese\Documents\\blast-master\\kinect.avi"
+        global valid_graphs
+        global Kinect
+        global IMU
 
         dest = "C:\Users\esese\Documents\\" + patient + '\\' + t 
-        shutil.move(source1, dest)
-        shutil.move(source3, dest)
-        # shutil.move(source2, dest)
- 
+        if Kinect:
+            source1 = "C:\Users\esese\Documents\\blast-master\\kinect.csv"
+            source3 = "C:\Users\esese\Documents\\blast-master\\kinect.avi"
+            shutil.move(source1, dest)
+            shutil.move(source3, dest)
 
+        if IMU: 
+            source2 = "C:\Users\esese\Documents\\blast-master\\imu.csv"
+            shutil.move(source2, dest)
+
+        valid_graphs = []
+        if Kinect: 
+            valid_graphs.append('Shoulder Angles')
+            valid_graphs.append('Left Elbow Angles')
+            valid_graphs.append('Right Elbow Angles')
+
+        if IMU: 
+            valid_graphs.append('Q0')
+            valid_graphs.append('QX')
+            valid_graphs.append('QY')
+            valid_graphs.append('QZ')
+        
 class DropdownScreen(Screen):
+
     def spinner_clicked(self, value):
+        global valid_graphs
+
         kinect_graphs = ['Shoulder Angles', 'Left Elbow Angles', 'Right Elbow Angles']
-        if value in kinect_graphs: 
-            self.kinect_graph(value)
+        imu_graphs = ['Q0', 'QX', 'QY', 'QZ']
 
-        imu_graphs = ['Roll', 'Pitch', 'Yaw']
-        if value in imu_graphs: 
-            self.imu_graph(value)
-
-        print("Spinner Value " + value)
+        if value not in valid_graphs: 
+            ctypes.windll.user32.MessageBoxW(0, u"This data was not collected for this session.", u"Error", 16)
+        else: 
+            if value in kinect_graphs: 
+                self.kinect_graph(value)
+            if value in imu_graphs: 
+                self.imu_graph(value)
 
     def kinect_graph(self, variable): 
         global patient
@@ -204,15 +182,18 @@ class DropdownScreen(Screen):
                 data.append(row)
             data = np.array(data)
 
-        if variable == 'Roll':
+        if variable == 'Q0':
             toplot = data[:, 0]
             color = 'darkviolet'
-        elif variable == 'Pitch': 
+        elif variable == 'QX': 
             toplot = data[:, 1]
             color = 'darkorange'
-        elif variable == 'Yaw':  
+        elif variable == 'QY':  
             toplot = data[:, 2]
             color = 'hotpink'
+        else: 
+            toplot = data[:,3]
+            color = 'gray'
 
         df = pd.DataFrame(toplot)
         df = df.astype('float')
@@ -233,7 +214,7 @@ class DropdownScreen(Screen):
         plt.plot(avdf['Time (s)'], avdf['Average'], 'k--')
         plt.scatter(df['Time (s)'], df[variable], color = color)
         plt.xlabel('Time (s)')
-        plt.ylabel(variable + ' (deg)')
+        plt.ylabel(variable + ' (quaternions)')
         plt.title(variable)
         plt.legend(['Moving Average', 'Raw Data'], loc = 'best', shadow=True)
         plt.show()
@@ -241,24 +222,6 @@ class DropdownScreen(Screen):
     def moving_average(self, data, fs): 
         N = fs/5 # frame rate divided by five - for kinect, 200ms
         return np.convolve(data, np.ones((N,))/N, mode='valid')
-
-
-    # def show_selected_value(spinner, text):
-    #     print('The spinner', spinner, 'have text', text)
-
-    # def build_data(self):
-    #     spinner = Spinner(
-    #         # default value shown
-    #         text='Home',
-    #         # available values
-    #         values=('Home', 'Work', 'Other', 'Custom'),
-    #         # just for positioning in our example
-    #         size_hint=(None, None),
-    #         size=(100, 44),
-    #         pos_hint={'center_x': .5, 'center_y': .5})        
-
-    #     spinner.bind(text=show_selected_value)
-    #     runTouchApp(spinner)
 
 class ScreenManagement(ScreenManager):
     pass

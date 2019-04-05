@@ -163,19 +163,19 @@ ScreenManagement:
         Label:
             font_size: 25
             size_hint: 0.5, 0.1
-            text: "Press the Spacebar to close Kinect"
+            text: "Press the Spacebar to stop data collection"
 			pos_hint: {"right":0.75, "bottom":1}
 
 <DropdownScreen>:
     name: "Dataanalysis"
     Spinner:
-        text: "Graphs"
-        values: ["Shoulder Angles", "Left Elbow Angles", "Right Elbow Angles", "Roll", "Yaw", "Pitch" ]
-        id:spinner_id
+        text: "Plot Data"
+        values: ['Shoulder Angles', 'Left Elbow Angles', 'Right Elbow Angles', 'Q0', 'QX', 'QY', 'QZ']
+        id: spinner_id
         on_text: root.spinner_clicked(spinner_id.text)
         color: 0,0,1,1
         font_size: 25
         size_hint: 0.3, 0.1
-        pos_hint: {"right":0.6, "top":0.5}
+        pos_hint: {"right":0.6, "top":0.3}
 
 
