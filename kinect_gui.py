@@ -13,54 +13,108 @@ from kivy.core.window import Window
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
 from kivy.base import runTouchApp
-from kivy.uix.spinner import Spinner
+from kivy.uix.floatlayout import FloatLayout
+from kivy.factory import Factory
+from kivy.uix.popup import Popup
 import cv2
 import xlwt 
 import os
+from xlwt import Workbook
 import datetime
 import csv
 import shutil
+from kivy.uix.spinner import Spinner
 import seaborn as sns
 import numpy as np 
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import csv
 import pandas as pd 
 import ctypes
+# import asyncio
+# from moviepy.editor import * 
 
+#Window.clearcolor = (0.3, 0.1, 0.1, 0)
+
+wb = Workbook()
 t = datetime.datetime.now().strftime('%Y-%m-%d-%H.%M')
-# Kinect = False
-# IMU = False
+
+with open('destination.txt') as file:
+    default_path = file.readline()
+
+class MainScreen(Screen):
+    pass
 
 class LoginScreen(Screen):
 
     def submit_name(self):
+
         self.physicianname = self.physicianname_text_input.text
         self.patientname = self.patientname_text_input.text
-        self.save()
-        self.physicianname = ''
-        self.patientname = ''
+        global patient
+        global physicianname
+        physicianname = str(self.physicianname).lower()
+        patient = str(self.patientname).lower()
+        
+
+    def check_login(self):
+        if self.ids["Physician_Name"].text != "" and self.ids["Patient_Name"].text != "":
+            self.manager.current = 'savefile'
+
+
+        else:
+            self.manager.current = 'login'
+
+class SaveFileScreen(Screen):
+    labeltext = StringProperty(default_path)
 
     def save(self):
-        # make patient name folder if does not exist 
-        global patient
-        patient = str(self.patientname).lower()
-        path = "C:\Users\esese\Documents\\" + patient
-
-        # within that folder, make date/time folder 
-        if not os.path.isdir(path): 
-            os.makedirs(path)
-        os.makedirs(path + '\\' + t) 
+        self.physicianname = ''
+        self.patientname = ''
+        patientpath = default_path + '\\' + patient
+        if not os.path.isdir(patientpath): 
+            os.makedirs(patientpath)
+        os.makedirs(patientpath + '\\' + t) 
 
         global Kinect
         Kinect = False
         global IMU
-        IMU = False
-    
-class MainScreen(Screen):
-	pass
+        IMU = False 
+
+        # make patient name folder if does not exist 
+        # patient = str(self.patientname).lower()
+       # path = "C:\Users\esese\Documents\\" + patient
+
+
+
+
+
+class SaveDialog(Screen):
+    save = ObjectProperty(None)
+    text_input = ObjectProperty(None)
+    cancel = ObjectProperty(None)
+
+    def open(self,path,selection):
+        with open('destination.txt', 'w') as f: 
+            f.write(path)
+            f.close()
+        global default_path
+        default_path = path
+        self.save
+
+    # def setText(self):
+    #     with open('destination.txt') as nr:
+    #         default_path = nr.readline() 
+    #         text = StringProperty(default_path)
+    #     self.manager.get_screen('savefile').labelText = text
+
+
+
+ 
 
 class ExerciseScreen(Screen):
-	pass
+
+    pass
 
 class ListScreen(Screen): 
 
@@ -87,7 +141,7 @@ class ListScreen(Screen):
         global Kinect
         global IMU
 
-        dest = "C:\Users\esese\Documents\\" + patient + '\\' + t 
+        dest = default_path + '\\' + patient + '\\' + t 
         if Kinect:
             source1 = "C:\Users\esese\Documents\\blast-master\\kinect.csv"
             source3 = "C:\Users\esese\Documents\\blast-master\\kinect.avi"
@@ -122,16 +176,17 @@ class DropdownScreen(Screen):
             ctypes.windll.user32.MessageBoxW(0, u"This data was not collected for this session.", u"Error", 16)
         else: 
             if value in kinect_graphs: 
+                # asyncio.create_task(self.kinect_graph(value))
                 self.kinect_graph(value)
             if value in imu_graphs: 
                 self.imu_graph(value)
 
     def kinect_graph(self, variable): 
         global patient
-        path = "C:\Users\esese\Documents\\" + patient
+        # default_path = "C:\Users\esese\Documents\\" + patient
         # read in csv 
         data = []
-        with open(path + '\\' + t + '\\kinect.csv') as csv_file: # will need to change this path
+        with open(default_path + '\\' + patient + '\\' + t + '\\kinect.csv') as csv_file: # will need to change this path
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
                 data.append(row)
@@ -162,21 +217,57 @@ class DropdownScreen(Screen):
         avdf.columns = ['Average']
         avdf['Time (s)'] = time_resampled
 
+        def onpick(event):
+            ind = event.ind[0] #index of selected dot (the earliest one)
+            pos_x = event.mouseevent.xdata
+            pos_y = event.mouseevent.ydata 
+            get_frame(pos_x, pos_y)
+
+        def get_frame(x, y):
+            which_frame = x*fs
+            vidcap = cv2.VideoCapture(default_path + '\\' + patient + '\\' + t + '\\kinect.avi')
+            success,image = vidcap.read()
+            # print('read frame')
+            count = 0
+            success = True
+            while success: 
+                if count == np.floor(which_frame): 
+                    # print('writes frames')
+                    cv2.imwrite("frame%d.jpg" % count, image)
+                    # print('writes image')
+                    img = mpimg.imread('frame.jpeg')
+                    # print('reads img')
+                    fig = plt.figure()
+                    ax = plt.subplot()
+                    imgplot = ax.imshow(img)
+                    ax.axis('off')
+                    plt.show()
+                    print('shows')
+                    break
+                else: 
+                    success,image = vidcap.read()
+                    count += 1
+
         sns.set()
-        plt.plot(avdf['Time (s)'], avdf['Average'], 'k--')
-        plt.scatter(df['Time (s)'], df[variable], color = color)
+        fig = plt.figure()
+        ax = plt.subplot()
+        ax.plot(avdf['Time (s)'], avdf['Average'], 'k--')
+        ax.scatter(df['Time (s)'], df[variable], color = color, picker = True)
         plt.xlabel('Time (s)')
         plt.ylabel(variable + ' (deg)')
         plt.title(variable)
         plt.legend(['Moving Average', 'Raw Data'], loc = 'best', shadow=True)
+        
+        fig.canvas.mpl_connect('pick_event', onpick)
+
         plt.show()
 
     def imu_graph(self, variable): 
         global patient
-        path = "C:\Users\esese\Documents\\" + patient
+        # default_path = "C:\Users\esese\Documents\\" + patient
         # read in csv 
         data = []
-        with open(path + '\\' + t + '\\imu.csv') as csv_file: # will need to change this path
+        with open(default_path + '\\' + patient + '\\' + t + '\\imu.csv') as csv_file: # will need to change this path
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
                 data.append(row)
@@ -210,18 +301,55 @@ class DropdownScreen(Screen):
         avdf.columns = ['Average']
         avdf['Time (s)'] = time_resampled
 
+        def onpick(event):
+            ind = event.ind[0] #index of selected dot (the earliest one)
+            pos_x = event.mouseevent.xdata
+            pos_y = event.mouseevent.ydata 
+            get_frame(pos_x, pos_y)
+
+        def get_frame(x, y):
+            which_frame = x*fs
+            vidcap = cv2.VideoCapture(default_path + '\\' + patient + '\\' + t + '\\kinect.avi')
+            success,image = vidcap.read()
+            # print('read frame')
+            count = 0
+            success = True
+            while success: 
+                if count == np.floor(which_frame): 
+                    # print('writes frames')
+                    cv2.imwrite("frame%d.jpg" % count, image)
+                    # print('writes image')
+                    img = mpimg.imread('frame.jpeg')
+                    # print('reads img')
+                    fig = plt.figure()
+                    ax = plt.subplot()
+                    imgplot = ax.imshow(img)
+                    ax.axis('off')
+                    plt.show()
+                    print('shows')
+                    break
+                else: 
+                    success,image = vidcap.read()
+                    count += 1
+
         sns.set()
-        plt.plot(avdf['Time (s)'], avdf['Average'], 'k--')
-        plt.scatter(df['Time (s)'], df[variable], color = color)
+        fig = plt.figure()
+        ax = plt.subplot()
+        ax.plot(avdf['Time (s)'], avdf['Average'], 'k--')
+        ax.scatter(df['Time (s)'], df[variable], color = color, picker = True)
         plt.xlabel('Time (s)')
         plt.ylabel(variable + ' (quaternions)')
         plt.title(variable)
         plt.legend(['Moving Average', 'Raw Data'], loc = 'best', shadow=True)
+        
+        fig.canvas.mpl_connect('pick_event', onpick)
+
         plt.show()
 
     def moving_average(self, data, fs): 
         N = fs/5 # frame rate divided by five - for kinect, 200ms
         return np.convolve(data, np.ones((N,))/N, mode='valid')
+
 
 class ScreenManagement(ScreenManager):
     pass
@@ -233,6 +361,7 @@ presentation = Builder.load_file("Main.kv")
 class MainApp(App):
     def build(self):
         return presentation
+        return SaveDialog
 
 if __name__ == '__main__':
-	MainApp().run()
+    MainApp().run()
