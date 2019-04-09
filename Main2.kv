@@ -1,0 +1,283 @@
+#File name: example_gui.py
+#: kivy 1.8.0
+
+ScreenManagement:
+    MainScreen:
+    LoginScreen:
+    ExerciseScreen:
+    ListScreen:
+    DropdownScreen:
+    SaveDialog:
+    SaveFileScreen:
+
+<MainScreen>:
+    name: "main"
+    FloatLayout:
+        Image:
+            source:'Picture1.png'
+            pos_hint: {"left":1, "bottom":1}
+        Label:
+            color: 0.7, 0.42, 0.74, 1
+            text: "Welcome to BLAsT World!!"
+            font_size: 65
+            pos_hint: {"right":1, "top":1.3} 
+
+        Button:
+            color: 0, 0, 0.74, 1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Next"
+            on_release: app.root.current = 'login'
+            pos_hint: {"right":1, "bottom":1}
+        Button:
+            color: 0,1,0,1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Exit"
+            on_release: app.Exit()
+            pos_hint: {"left":1, "bottom":1} 
+
+
+<LoginScreen>:
+    name: "login"
+    physicianname_text_input: Physician_Name
+    patientname_text_input: Patient_Name
+    FloatLayout:
+        BoxLayout
+            id: login_layout
+            orientation: 'vertical'
+            padding: [10,80,10,80]
+            spacing: 40
+
+            Label:
+                text: 'Login Info Here'
+                font_size: 40
+
+            BoxLayout:
+                orientation: 'vertical'
+
+                Label:
+                    text: 'Physician Name'
+                    font_size: 30
+                    halign: 'left'
+                    text_size: root.width-30, 30
+
+                TextInput:
+                    id: Physician_Name
+                    multiline:False
+                    font_size: 20
+
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    text: 'Patient_Name'
+                    halign: 'left'
+                    font_size: 30
+                    text_size: root.width-30, 30
+
+                TextInput:
+                    id: Patient_Name
+                    multiline:False
+                    font_size: 20
+        
+        Button:
+            color: 0,0,1,1
+            font_size: 20
+            size_hint: 0.17, 0.08
+            text: "Next"
+            on_release: root.check_login()
+            on_release: root.submit_name()
+            pos_hint: {"right":1, "bottom":1} 
+
+        Button:
+            color: 0,1,0,1
+            font_size: 20
+            size_hint: 0.17, 0.08
+            text: "Previous"
+            on_release: app.root.current = 'main'
+            pos_hint: {"left":1, "bottom":1}
+
+
+<SaveFileScreen>:
+    name: "savefile"
+    Label:
+        text: root.labeltext
+        font_size: 50
+        pos_hint: {"right":1, "top":1.2}
+    Label:
+        text: "Save File in this folder?"
+        font_size: 50
+        pos_hint: {"right":1, "top":1.1}
+
+    Button:
+        color: 1,0.5,0,1
+        font_size: 25
+        size_hint: 0.15, 0.09
+        text: "Save in New Folder"
+        on_release: app.root.current = 'savedialog'
+        pos_hint: {"right":0.6, "top":0.57}    
+
+
+    Button:
+        color: 0,0,1,1
+        font_size: 25
+        size_hint: 0.2, 0.1
+        text: "Next"
+        on_release: app.root.current = 'exercise'
+        on_release: root.save()
+        pos_hint: {"right":1, "bottom":1}
+
+    Button:
+        color: 0,1,0,1
+        font_size:25
+        size_hint: 0.2, 0.1
+        text: "Previous"
+        font_size: 25
+        on_release: app.root.current = 'login'
+        pos_hint: {"left":1, "bottom":1} 
+
+
+    Button:
+        color: 0,1,0,1
+        font_size:25
+        size_hint: 0.2, 0.1
+        text: "Update"
+        font_size: 25
+        pos_hint: {"right":0.7, "top":0.5} 
+
+<SaveDialog>:
+    name: "savedialog"
+    text_input: text_input
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+
+
+        TextInput:
+            id: text_input
+            size_hint_y: None
+            height: 30
+            multiline: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: app.root.current = 'savefile'
+
+            Button:
+                text: "Save"
+                on_release: root.open(filechooser.path, filechooser.selection)
+                on_release: app.root.current = 'savefile'
+
+
+
+
+<ExerciseScreen>:
+    name: "exercise"
+    Label:
+        text: "Begin BLAsT Measurement!!"
+        font_size: 50
+    Button:
+        color: 0,0,1,1
+        font_size: 25
+        size_hint: 0.2, 0.1
+        text: "Next"
+        on_release: app.root.current = 'list'
+        pos_hint: {"right":1, "bottom":1}
+
+    Button:
+        color: 0,1,0,1
+        font_size:25
+        size_hint: 0.2, 0.1
+        text: "Previous"
+        font_size: 25
+        on_release: app.root.current = 'savefile'
+        pos_hint: {"left":1, "bottom":1} 
+
+
+
+<ListScreen>:
+    name: "list"
+    FloatLayout:
+        Button:
+            font_size: 30
+            size_hint: 0.5, 0.1
+            text: "Start Kinect Video"
+            on_release: root.start_kinect()
+            pos_hint: {"right":0.7, "top":0.7} 
+
+        Button:
+            font_size: 30
+            size_hint: 0.6, 0.1
+            text: "Start Rotational Measurement"
+            on_release: root.start_imu()
+            pos_hint: {"right":0.75, "top":0.6} 
+
+        Button:
+            font_size: 30
+            size_hint: 0.5, 0.1
+            text: "Run Parallel"
+            pos_hint: {"right":0.7, "top":0.5}
+            on_release: root.start_parallel() 
+        
+        Button:
+            color: 0,1,0,1
+            font_size:25
+            size_hint: 0.2, 0.1
+            text: "Previous"
+            font_size: 25
+            on_release: app.root.current = 'exercise'
+            pos_hint: {"left":1, "bottom":1} 
+        
+        Button:
+            color: 0,0,1,1
+            font_size: 25
+            size_hint: 0.2, 0.1
+            text: "Collect Data"
+            on_release: root.collect_data()
+            on_release:app.root.current = 'Dataanalysis'
+            pos_hint: {"right":1, "bottom":1} 
+
+        Label:
+            font_size: 25
+            size_hint: 0.5, 0.1
+            text: "Press the Spacebar to close Kinect"
+			pos_hint: {"right":0.75, "bottom":1}
+
+<DropdownScreen>:
+    name: "Dataanalysis"
+    Spinner:
+        text: "Graphs"
+        values: ["Shoulder Angles", "Left Elbow Angles", "Right Elbow Angles", "Roll", "Yaw", "Pitch" ]
+        id:spinner_id
+        on_text: root.spinner_clicked(spinner_id.text)
+        color: 0,0,1,1
+        font_size: 25
+        size_hint: 0.3, 0.1
+        pos_hint: {"right":0.6, "top":0.5}
+
+
+    Button:
+        color: 0,1,0,1
+        font_size: 25
+        size_hint: 0.2, 0.1
+        text: "New Measurement"
+        on_release: root.collect_data()
+        on_release:app.root.current = 'login'
+        pos_hint: {"left":1, "bottom":1} 
+
+    Button:
+        color: 0,1,0,1
+        font_size: 25
+        size_hint: 0.2, 0.1
+        text: "Exit"
+        on_release: app.Exit()
+        pos_hint: {"left":1, "bottom":1} 
+
+
+
