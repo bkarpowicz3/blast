@@ -65,6 +65,60 @@ class LoginScreen(Screen):
         else:
             self.manager.current = 'login'
 
+class LoadDataScreen(Screen):
+    pass
+
+class OlddataScreen(Screen):
+
+    def submit_name(self):
+
+        self.newpatientname = self.newpatientname_text_input.text
+        self.dateformat = self.dateformat_text_input.text
+        global patient
+        patient = str(self.newpatientname).lower()
+        
+
+    def check_loaddata(self):
+        global patient 
+        nameGood = False
+        dateGood = False
+
+        if self.ids["Patient_Name"].text != "" and self.ids["Date"].text != "":
+            # self.manager.current = 'Dataanalysis'
+            nameGood = True
+
+        if len(self.ids["Patient_Name"].text) > 0: 
+            # self.manager.current = 'Dataanalysis' 
+            pass
+        else: 
+            ctypes.windll.user32.MessageBoxW(0, u"Enter Patient Name!", u"Error", 16) 
+            # self.manager.current = 'olddata'
+
+        date = self.ids["Date"].text    
+
+        furtherCheck = False
+        if self.ids["Date"].text.isdigit() and len(date) == 8: 
+            m = date[0:2]
+            d = date[2:4]
+            y = date[4:8]
+            furtherCheck = True
+        else: 
+            ctypes.windll.user32.MessageBoxW(0, u"Date must be numbers (mmddyyyy)!", u"Error", 16)
+            # self.manager.current = 'olddata'
+
+        if furtherCheck: 
+            if int(m) >= 1 and int(m) <= 12 and int(d) >= 1 and int(d) <= 31 and int(y) >= 2018 and int(y) <= 3000: 
+                # self.manager.current = 'Dataanalysis'
+                dateGood = True
+            else: 
+                ctypes.windll.user32.MessageBoxW(0, u"Enter Valid Date", u"Error", 16) 
+                # self.manager.current = 'olddata'
+
+        if nameGood and dateGood: 
+            patient = self.ids["Patient_Name"].text
+            t = y + "-" + m + '-' + 'd'
+            self.manager.current = 'Dataanalysis'
+
 class SaveFileScreen(Screen):
     labeltext = StringProperty(default_path)
 
@@ -101,6 +155,7 @@ class SaveDialog(Screen):
         global default_path
         default_path = path
         self.save
+        ctypes.windll.user32.MessageBoxW(0, u"The file is now saved in " + (default_path), u"Message", 16)
 
     # def setText(self):
     #     with open('destination.txt') as nr:

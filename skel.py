@@ -108,7 +108,7 @@ def compute_metrics(converted_coords, video):
 
 	#shoulder angle 
 	y = abs(shoulderL.y - shoulderR.y);  
-	x = abs(shoulderL.x - shoulderR.x); 
+	x = abs(shoulderL.x - shoulderR.x) + 0.00000000001; 
 	shoulder_angle = round(math.degrees(math.atan(y/x)), 3);
 	cv2.putText(video, "Shoulder Angle: " + str(shoulder_angle), (40,400), cv2.FONT_HERSHEY_SIMPLEX, float(0.5), (0,0,255), 2)
 
@@ -116,7 +116,7 @@ def compute_metrics(converted_coords, video):
 	elbow_L = elbow_angle(elbowL, wristL, shoulderL, "Left", 420, video)
 	#right elbow angle calculation
 	elbow_R = elbow_angle(elbowR, wristR, shoulderR, "Right", 440, video)
-
+   
 	metrics.append([shoulder_angle, elbow_L, elbow_R])
 
 def elbow_angle(elbowL, wristL, shoulderL, LoR, posv, video): 
@@ -132,16 +132,21 @@ def elbow_angle(elbowL, wristL, shoulderL, LoR, posv, video):
 	wrist_shoulderLy = abs(wristL.y - shoulderL.y);
 	wrist_shoulderLx = abs(wristL.x - shoulderL.x);
 	wrist_shoulderLhyp = np.sqrt(wrist_shoulderLy**2 + wrist_shoulderLx**2);
+	operator = (elb_shoulderLhyp**2 - wrist_shoulderLhyp**2 + elb_wristLhyp**2)/((2*elb_wristLhyp*elb_shoulderLhyp) + 0.00000000001));
+	if operator > 1: 
+		operator = 1
+	elif operator < -1: 
+		operator = -1
+	# #find angle alpha
 	#find angle opposite elb-shoulder length
-	C = math.degrees(math.acos((-elb_shoulderLhyp**2 + wrist_shoulderLhyp**2 + elb_wristLhyp**2)/(2*elb_wristLhyp*wrist_shoulderLhyp)));
-	#find angle alpha
-	alpha = 90-C;
+	C = math.degrees(math.acos(operator))
+	# alpha = 90-C;
 	#find distance a-x and then elbow angle 
-	a_x = elb_wristLhyp*math.cos(np.deg2rad(C));
-	xdist = wrist_shoulderLhyp - a_x;
-	beta = math.degrees(math.asin(xdist/elb_shoulderLhyp));
-	elbow_angleL = alpha+beta;
-	elbow_angleL = round(elbow_angleL, 3);
+	# a_x = elb_wristLhyp*math.cos(np.deg2rad(C));
+	# xdist = wrist_shoulderLhyp - a_x;
+	# beta = math.degrees(math.asin(xdist/elb_shoulderLhyp));
+	# elbow_angleL = alpha+beta;
+	elbow_angleL = round(C, 3);
 	cv2.putText(video, LoR + " Elbow Angle: " + str(elbow_angleL), (40,posv), cv2.FONT_HERSHEY_SIMPLEX, float(0.5), (0,0,255), 2)
 	return elbow_angleL
 
