@@ -19,7 +19,7 @@ from kivy.uix.popup import Popup
 import cv2
 import xlwt 
 import os
-from xlwt import Workbook
+# from xlwt import Workbook
 import datetime
 import csv
 import shutil
@@ -31,13 +31,16 @@ import matplotlib.image as mpimg
 import csv
 import pandas as pd 
 import ctypes
-# import asyncio
-# from moviepy.editor import * 
+import glob
+from Tkinter import *
 
-#Window.clearcolor = (0.3, 0.1, 0.1, 0)
-
-wb = Workbook()
+global t
 t = datetime.datetime.now().strftime('%Y-%m-%d-%H.%M')
+global Kinect
+Kinect = False
+global IMU
+IMU = False 
+global valid_graphs 
 
 with open('destination.txt') as file:
     default_path = file.readline()
@@ -80,6 +83,10 @@ class OlddataScreen(Screen):
 
     def check_loaddata(self):
         global patient 
+        global Kinect
+        global IMU
+        global valid_graphs
+        valid_graphs = []
         nameGood = False
         dateGood = False
 
@@ -111,13 +118,66 @@ class OlddataScreen(Screen):
                 # self.manager.current = 'Dataanalysis'
                 dateGood = True
             else: 
-                ctypes.windll.user32.MessageBoxW(0, u"Enter Valid Date", u"Error", 16) 
+                ctypes.windll.user32.MessageBoxW(0, u"Enter Valid Date.", u"Error", 16) 
                 # self.manager.current = 'olddata'
-
+        
         if nameGood and dateGood: 
+            global selected_t 
+            global t
             patient = self.ids["Patient_Name"].text
-            t = y + "-" + m + '-' + 'd'
-            self.manager.current = 'Dataanalysis'
+            t = y + "-" + m + '-' + d
+            possible_times = glob.glob(default_path + '/' + patient + '/*/')
+            if len(possible_times) >= 1:
+                times = []
+                for pt in possible_times: 
+                    pt = pt.split('\\')
+                    pt = pt[len(pt)-2]
+                    pt = pt.split('-')
+                    times.append(pt[len(pt)-1])
+                if len(times) > 1: 
+                    root = Tk()
+                    root.title("Drop-down boxes for option selections.")
+                    var = StringVar(root)
+                    var.set("Select a Time and Close")
+
+                    def grab_and_assign(event):
+                        global selected_t
+                        chosen_option = var.get()
+                        label_chosen_variable= Label(root, text=chosen_option)
+                        label_chosen_variable.grid(row=1, column=2)
+                        selected_t = chosen_option
+
+                    drop_menu = OptionMenu(root, var, *tuple(times), command=grab_and_assign)
+                    drop_menu.grid(row=0, column=0)
+
+                    label_left=Label(root, text="chosen variable= ")
+                    label_left.grid(row=1, column=0)
+
+                    root.mainloop()
+
+                    t = t + '-' + selected_t
+                else: 
+                    t = t + '-' + times[0]
+
+                files_available = glob.glob(default_path + '\\' + patient + '\\' + t + '\\*')
+                if default_path + '\\' + patient + '\\' + t + '\\' + 'kinect.csv' in files_available: 
+                    Kinect = True
+                    valid_graphs.append('Left Elbow Angles')
+                    valid_graphs.append('Right Elbow Angles')
+                    valid_graphs.append('Shoulder Angles')
+                if default_path + '\\' + patient + '\\' + t + '\\' + 'imu.csv' in files_available: 
+                    IMU = True
+                    valid_graphs.append('QX')
+                    valid_graphs.append('QY')
+                    valid_graphs.append('QZ')
+                    valid_graphs.append('Q0')
+                # print(t)
+
+                # print(valid_graphs)
+
+                self.manager.current = 'Dataanalysis'
+            else: 
+                ctypes.windll.user32.MessageBoxW(0, u"No sessions exist for this date.", u"Error", 16) 
 
 class SaveFileScreen(Screen):
     labeltext = StringProperty(default_path)
@@ -129,18 +189,6 @@ class SaveFileScreen(Screen):
         if not os.path.isdir(patientpath): 
             os.makedirs(patientpath)
         os.makedirs(patientpath + '\\' + t) 
-
-        global Kinect
-        Kinect = False
-        global IMU
-        IMU = False 
-
-        # make patient name folder if does not exist 
-        # patient = str(self.patientname).lower()
-       # path = "C:\Users\esese\Documents\\" + patient
-
-
-
 
 
 class SaveDialog(Screen):
@@ -156,19 +204,9 @@ class SaveDialog(Screen):
         default_path = path
         self.save
         ctypes.windll.user32.MessageBoxW(0, u"The file is now saved in " + (default_path), u"Message", 16)
-
-    # def setText(self):
-    #     with open('destination.txt') as nr:
-    #         default_path = nr.readline() 
-    #         text = StringProperty(default_path)
-    #     self.manager.get_screen('savefile').labelText = text
-
-
-
  
 
 class ExerciseScreen(Screen):
-
     pass
 
 class ListScreen(Screen): 
@@ -195,6 +233,7 @@ class ListScreen(Screen):
         global valid_graphs
         global Kinect
         global IMU
+        global t
 
         dest = default_path + '\\' + patient + '\\' + t 
         if Kinect:
@@ -223,6 +262,7 @@ class DropdownScreen(Screen):
 
     def spinner_clicked(self, value):
         global valid_graphs
+        # print(valid_graphs)
 
         kinect_graphs = ['Shoulder Angles', 'Left Elbow Angles', 'Right Elbow Angles']
         imu_graphs = ['Q0', 'QX', 'QY', 'QZ']
@@ -231,17 +271,15 @@ class DropdownScreen(Screen):
             ctypes.windll.user32.MessageBoxW(0, u"This data was not collected for this session.", u"Error", 16)
         else: 
             if value in kinect_graphs: 
-                # asyncio.create_task(self.kinect_graph(value))
                 self.kinect_graph(value)
             if value in imu_graphs: 
                 self.imu_graph(value)
 
     def kinect_graph(self, variable): 
         global patient
-        # default_path = "C:\Users\esese\Documents\\" + patient
-        # read in csv 
+        global t
         data = []
-        with open(default_path + '\\' + patient + '\\' + t + '\\kinect.csv') as csv_file: # will need to change this path
+        with open(default_path + '\\' + patient + '\\' + t + '\\kinect.csv') as csv_file: 
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
                 data.append(row)
@@ -290,7 +328,7 @@ class DropdownScreen(Screen):
                     # print('writes frames')
                     cv2.imwrite("frame%d.jpg" % count, image)
                     # print('writes image')
-                    img = mpimg.imread('frame.jpeg')
+                    img = mpimg.imread('frame%d.jpg' % count)
                     # print('reads img')
                     fig = plt.figure()
                     ax = plt.subplot()
@@ -319,10 +357,11 @@ class DropdownScreen(Screen):
 
     def imu_graph(self, variable): 
         global patient
-        # default_path = "C:\Users\esese\Documents\\" + patient
-        # read in csv 
+        global Kinect
+        global t
+
         data = []
-        with open(default_path + '\\' + patient + '\\' + t + '\\imu.csv') as csv_file: # will need to change this path
+        with open(default_path + '\\' + patient + '\\' + t + '\\imu.csv') as csv_file: 
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
                 data.append(row)
@@ -381,7 +420,7 @@ class DropdownScreen(Screen):
                     imgplot = ax.imshow(img)
                     ax.axis('off')
                     plt.show()
-                    print('shows')
+                    # print('shows')
                     break
                 else: 
                     success,image = vidcap.read()
@@ -397,7 +436,8 @@ class DropdownScreen(Screen):
         plt.title(variable)
         plt.legend(['Moving Average', 'Raw Data'], loc = 'best', shadow=True)
         
-        fig.canvas.mpl_connect('pick_event', onpick)
+        if Kinect:
+            fig.canvas.mpl_connect('pick_event', onpick)
 
         plt.show()
 

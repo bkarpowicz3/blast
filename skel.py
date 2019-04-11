@@ -132,7 +132,7 @@ def elbow_angle(elbowL, wristL, shoulderL, LoR, posv, video):
 	wrist_shoulderLy = abs(wristL.y - shoulderL.y);
 	wrist_shoulderLx = abs(wristL.x - shoulderL.x);
 	wrist_shoulderLhyp = np.sqrt(wrist_shoulderLy**2 + wrist_shoulderLx**2);
-	operator = (elb_shoulderLhyp**2 - wrist_shoulderLhyp**2 + elb_wristLhyp**2)/((2*elb_wristLhyp*elb_shoulderLhyp) + 0.00000000001));
+	operator = (elb_shoulderLhyp**2 - wrist_shoulderLhyp**2 + elb_wristLhyp**2)/((2*elb_wristLhyp*elb_shoulderLhyp) + 0.00000000001)
 	if operator > 1: 
 		operator = 1
 	elif operator < -1: 
