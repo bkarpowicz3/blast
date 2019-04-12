@@ -17,12 +17,19 @@ ScreenManagement:
     FloatLayout:
         Image:
             source:'Picture1.png'
-            pos_hint: {"left":1, "bottom":1}
+            pos_hint: {"center_x":0.5, "center_y":0.5}
+            allow_stretch: True
+            keep_ratio: True
+            size_hint_y: None
+            size_hint_x: None
+            width: 400
+            height: 400
+
         Label:
             color: 0.7, 0.42, 0.74, 1
             text: "Welcome to BLAsT World!!"
             font_size: 65
-            pos_hint: {"right":1, "top":1.3} 
+            pos_hint: {"right":1, "top":1.4} 
 
         Button:
             color: 0, 0, 0.74, 1
@@ -55,7 +62,7 @@ ScreenManagement:
 	    font_size: 20
 	    size_hint: 0.24,0.1
 	    text: "Collect New Data"
-	    pos_hint: {"right":0.6, "top":0.5} 
+	    pos_hint: {"right":0.6, "top":0.55} 
 	    on_release: app.root.current = 'login'
 
     Button:
@@ -69,7 +76,6 @@ ScreenManagement:
 
 <OlddataScreen>:
     name: "olddata"
-
     newpatientname_text_input: Patient_Name
     dateformat_text_input: Date
     FloatLayout:
@@ -95,6 +101,7 @@ ScreenManagement:
 
                 TextInput:
                     id: Patient_Name
+                    write_tab: False
                     multiline:False
                     font_size: 20
 
@@ -157,6 +164,7 @@ ScreenManagement:
 
                 TextInput:
                     id: Physician_Name
+                    write_tab: False
                     multiline:False
                     font_size: 20
 
@@ -354,7 +362,7 @@ ScreenManagement:
         color: 0,0,1,1
         font_size: 25
         size_hint: 0.3, 0.1
-        pos_hint: {"right":0.6, "top":0.5}
+        pos_hint: {"right":0.6, "top":0.4}
 
 
     Button:
