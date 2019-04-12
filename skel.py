@@ -41,6 +41,7 @@ def video_handler_function(frame):
 		compute_metrics(converted_coords, video)
 	else:
 		cv2.putText(video, "SUBJECT IS TOO CLOSE TO DEVICE", (40,50), cv2.FONT_HERSHEY_SIMPLEX, float(1), (0,0,255), 2)
+		metrics.append([float('nan'), float('nan'), float('nan')])
 	cv2.imshow('KINECT Video Stream', video)
 
 # video saving 

@@ -7,7 +7,7 @@ def run_process(process):
 
 def main():
 	freeze_support()
-	processes = ('skel.py', 'SendDataTestRun.py')
+	processes = ('wearable_data.py', 'skel.py')
 	pool = Pool(processes=len(processes))
 	pool.map(run_process, processes)
 

@@ -58,15 +58,15 @@ class LoginScreen(Screen):
         global physicianname
         physicianname = str(self.physicianname).lower()
         patient = str(self.patientname).lower()
+        t = datetime.datetime.now().strftime('%Y-%m-%d-%H.%M')
         
 
     def check_login(self):
         if self.ids["Physician_Name"].text != "" and self.ids["Patient_Name"].text != "":
             self.manager.current = 'savefile'
-
-
         else:
             self.manager.current = 'login'
+
 
 class LoadDataScreen(Screen):
     pass
@@ -124,7 +124,7 @@ class OlddataScreen(Screen):
         if nameGood and dateGood: 
             global selected_t 
             global t
-            patient = self.ids["Patient_Name"].text
+            patient = self.ids["Patient_Name"].text.lower()
             t = y + "-" + m + '-' + d
             possible_times = glob.glob(default_path + '/' + patient + '/*/')
             if len(possible_times) >= 1:
@@ -183,8 +183,10 @@ class SaveFileScreen(Screen):
     labeltext = StringProperty(default_path)
 
     def save(self):
+        global t 
         self.physicianname = ''
         self.patientname = ''
+        t = datetime.datetime.now().strftime('%Y-%m-%d-%H.%M')
         patientpath = default_path + '\\' + patient
         if not os.path.isdir(patientpath): 
             os.makedirs(patientpath)
@@ -340,12 +342,15 @@ class DropdownScreen(Screen):
                 else: 
                     success,image = vidcap.read()
                     count += 1
+            # print(count)
 
+        # print(df.shape)
         sns.set()
         fig = plt.figure()
         ax = plt.subplot()
         ax.plot(avdf['Time (s)'], avdf['Average'], 'k--')
         ax.scatter(df['Time (s)'], df[variable], color = color, picker = True)
+        ax.set_ylim(0, 180)
         plt.xlabel('Time (s)')
         plt.ylabel(variable + ' (deg)')
         plt.title(variable)
@@ -413,7 +418,7 @@ class DropdownScreen(Screen):
                     # print('writes frames')
                     cv2.imwrite("frame%d.jpg" % count, image)
                     # print('writes image')
-                    img = mpimg.imread('frame.jpeg')
+                    img = mpimg.imread('frame%d.jpg' % count)
                     # print('reads img')
                     fig = plt.figure()
                     ax = plt.subplot()
@@ -433,6 +438,7 @@ class DropdownScreen(Screen):
         ax.scatter(df['Time (s)'], df[variable], color = color, picker = True)
         plt.xlabel('Time (s)')
         plt.ylabel(variable + ' (quaternions)')
+        # ax.set_ylim(0, 180)
         plt.title(variable)
         plt.legend(['Moving Average', 'Raw Data'], loc = 'best', shadow=True)
         
@@ -442,7 +448,7 @@ class DropdownScreen(Screen):
         plt.show()
 
     def moving_average(self, data, fs): 
-        N = fs/5 # frame rate divided by five - for kinect, 200ms
+        N = fs/3 # frame rate divided by five - for kinect, 200ms
         return np.convolve(data, np.ones((N,))/N, mode='valid')
 
 

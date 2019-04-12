@@ -10,7 +10,7 @@ store = []
 
 while True:
 	d = data.readline()
-	# print d
+	print d
 	if 'qx' in d:
 		video = np.empty((480,640,4), np.uint8)
 		values = re.split(r'\t+', d)
