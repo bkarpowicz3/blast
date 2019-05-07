@@ -320,6 +320,7 @@ class DropdownScreen(Screen):
 
         def get_frame(x, y):
             which_frame = x*fs
+            print "kinect", which_frame
             vidcap = cv2.VideoCapture(default_path + '\\' + patient + '\\' + t + '\\kinect.avi')
             success,image = vidcap.read()
             # print('read frame')
@@ -389,12 +390,12 @@ class DropdownScreen(Screen):
         df = df.astype('float')
         df.columns = [variable]
 
-        fs = 30 #frames per second 
+        fs = 2 #frames per second 
         time = np.arange(0, len(toplot)/float(fs), 1.0/fs)
 
         df['Time (s)'] = time
 
-        mov_av = self.moving_average(np.array(df[variable])[1:len(toplot)], fs)  
+        mov_av = self.moving_average(np.array(df[variable])[1:len(toplot)], 9)  
         time_resampled = np.linspace(0, len(toplot)/float(fs), len(mov_av))
         avdf = pd.DataFrame(mov_av)
         avdf.columns = ['Average']
@@ -407,13 +408,14 @@ class DropdownScreen(Screen):
             get_frame(pos_x, pos_y)
 
         def get_frame(x, y):
-            which_frame = x*fs
+            which_frame = x*30
+            print which_frame
             vidcap = cv2.VideoCapture(default_path + '\\' + patient + '\\' + t + '\\kinect.avi')
             success,image = vidcap.read()
             # print('read frame')
             count = 0
             success = True
-            while success: 
+            while success:
                 if count == np.floor(which_frame): 
                     # print('writes frames')
                     cv2.imwrite("frame%d.jpg" % count, image)
@@ -425,7 +427,7 @@ class DropdownScreen(Screen):
                     imgplot = ax.imshow(img)
                     ax.axis('off')
                     plt.show()
-                    # print('shows')
+                    print('shows')
                     break
                 else: 
                     success,image = vidcap.read()
@@ -448,7 +450,7 @@ class DropdownScreen(Screen):
         plt.show()
 
     def moving_average(self, data, fs): 
-        N = fs/3 # frame rate divided by five - for kinect, 200ms
+        N = fs/3 # frame rate divided by three - for kinect, 200ms
         return np.convolve(data, np.ones((N,))/N, mode='valid')
 
 

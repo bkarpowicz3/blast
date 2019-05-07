@@ -3,14 +3,14 @@ import cv2
 import numpy as np
 import re
 
-data = serial.Serial('COM3', 115200)
+data = serial.Serial('COM4', 115200) #change port depending on bluetooth connection to arduino
 
 
 store = []
 
 while True:
 	d = data.readline()
-	print d
+	#print d
 	if 'qx' in d:
 		video = np.empty((480,640,4), np.uint8)
 		values = re.split(r'\t+', d)
